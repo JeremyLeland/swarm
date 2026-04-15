@@ -1,0 +1,8 @@
+4/14:
+
+Inspired by Brotato and the like, top down view of monsters swarming the player
+  - But draw the monsters from the side
+  - One view, fliped left/right, using squish transformations to simulate walking
+  - Use the avoidance movement stuff we've done before, hopefully it'll be cleaner this time
+
+

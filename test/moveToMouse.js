@@ -11,8 +11,12 @@ const ratio = image.width / image.height;
 
 const enemies = [
   { pos: [  1, 1 ], radius: 0.5 },
+  { pos: [  3, 3 ], radius: 0.5 },
+  { pos: [  4, 4 ], radius: 0.5 },
+  { pos: [ -2, -1 ], radius: 0.5 },
   { pos: [ -1, 0 ], radius: 0.5 },
   { pos: [  2, -2 ], radius: 1 },
+  { pos: [  -2, 2 ], radius: 1 },
 ];
 
 const EnemySpeed = 0.002;
@@ -35,7 +39,7 @@ gameCanvas.update = ( dt ) => {
       if ( enemy != other ) {
         // Opposite direction so we avoid other
         const toOther = vec2.subtract( [], enemy.pos, other.pos );
-        const distToOther = vec2.len( toOther ) - enemy.radius - other.radius;
+        const distToOther = Math.max( 1e-6, vec2.len( toOther ) - enemy.radius - other.radius );
         vec2.normalize( toOther, toOther );
 
         // This function is infinite at f(0) and close to 0 at f(1)

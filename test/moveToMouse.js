@@ -10,9 +10,9 @@ await image.decode();
 const ratio = image.width / image.height;
 
 const enemies = [
-  { pos: [  1, 1 ] },
-  // { pos: [ -1, 0 ] },
-  // { pos: [  2, -2 ] },
+  { pos: [  1, 1 ], radius: 0.5 },
+  { pos: [ -1, 0 ], radius: 0.5 },
+  { pos: [  2, -2 ], radius: 1 },
 ];
 
 const EnemySpeed = 0.002;
@@ -25,13 +25,31 @@ gameCanvas.backgroundColor = '#123';
 
 gameCanvas.update = ( dt ) => {
   enemies.forEach( enemy => {
-    const toMouse = vec2.subtract( [], mousePos, enemy.pos );
-    const distanceFrom = vec2.len( toMouse );
-    vec2.normalize( toMouse, toMouse );
+    const moveVector = vec2.subtract( [], mousePos, enemy.pos );
+    const distanceFrom = vec2.len( moveVector );
+    vec2.normalize( moveVector, moveVector );
+
+    // const avoid = vec2.create();
+
+    enemies.forEach( other => {
+      if ( enemy != other ) {
+        // Opposite direction so we avoid other
+        const toOther = vec2.subtract( [], enemy.pos, other.pos );
+        const distToOther = vec2.len( toOther ) - enemy.radius - other.radius;
+        vec2.normalize( toOther, toOther );
+
+        // This function is infinite at f(0) and close to 0 at f(1)
+        const weight = 1 / Math.tanh( 3 * distToOther ) - 1;
+
+        // TODO: Incorporate radius somehow, so bigger enemies push smaller ones around more?
+
+        // vec2.scaleAndAdd( avoid, avoid, toOther, weight );
+        vec2.scaleAndAdd( moveVector, moveVector, toOther, weight );
+      }
+    } );
 
     const moveDist = sigma( distanceFrom ) * EnemySpeed * dt;
-
-    vec2.scaleAndAdd( enemy.pos, enemy.pos, toMouse, moveDist );
+    vec2.scaleAndAdd( enemy.pos, enemy.pos, moveVector, moveDist );
   } );
 }
 
@@ -50,10 +68,15 @@ gameCanvas.draw = ( ctx ) => {
       ctx.translate( ...enemy.pos );
 
       const dir = mousePos[ 0 ] < enemy.pos[ 0 ] ? 1 : -1;
+      ctx.scale( dir * ratio * enemy.radius * 2, enemy.radius * 2 );
 
-      ctx.scale( dir * ratio, 1 );
-      ctx.translate( -0.5, -0.5 );
-      ctx.drawImage( image, 0, 0, 1, 1 );
+      ctx.drawImage( image, -0.5, -0.5, 1, 1 );
+
+      ctx.beginPath();
+      ctx.arc( 0, 0, 0.5, 0, Math.PI * 2 );
+      ctx.lineWidth = 0.005 / enemy.radius;
+      ctx.strokeStyle = 'red';
+      ctx.stroke();
     }
     ctx.restore();
   } );

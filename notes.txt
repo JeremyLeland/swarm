@@ -1,3 +1,27 @@
+4/22:
+
+Got some nice "move to mouse" with avoidance working earlier. What next?
+
+Minimal game:
+  - Player that can be killed by monsters
+  - Monsters that can be killed by player
+  - Monsters bite when in range
+  - Player shoots at monsters in range
+  - Player moves around (arrow keys, to pointer clicks)
+  - Monsters spawn (randomly for now)
+
+Start chipping away at that, I guess. 
+  - Don't get stuck demoing the same thing over and over.
+    - Swarming seems to work for now, move on! Can always test it further if we have issues.
+
+Player
+  - I think Marshmallow with earphones is our winner for now
+
+Obstacles?
+  - bevouliin.com guy has some nice rocks, too
+  - could use these as obstacles to make swarm flow a little more interesting
+
+
 4/14:
 
 Inspired by Brotato and the like, top down view of monsters swarming the player

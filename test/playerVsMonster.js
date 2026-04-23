@@ -6,6 +6,7 @@ import { vec2 } from '../lib/gl-matrix.js';
 
 import * as Entities from '../src/Entities.js';
 
+const EnemyBiteDist = 0.4;
 const EnemySpeed = 0.002;
 
 const player = {
@@ -21,7 +22,7 @@ const player = {
 
 const entities = [
   player,
-  { type: 'monster', pos: [ 3, 3 ], radius: 0.5, facing: 0, },
+  { type: 'monster', pos: [ 3, 3 ], radius: 0.5, facing: 0 },
 ];
 
 const gameCanvas = new GameCanvas();
@@ -30,11 +31,19 @@ gameCanvas.backgroundColor = '#123';
 
 gameCanvas.update = ( dt ) => {
   entities.forEach( entity => {
+
+    // Multiple timers? Or one delay for everything? (might want to track various actions being ready separately)
+    entity.timers ??= { delay: 0 };
+    for ( const timer in entity.timers ) {
+      entity.timers[ timer ] -= dt;
+    }
+
     if ( entity.animation ) {
       entity.animation.time += dt;
     }
 
     if ( entity.type == 'monster' ) {
+      // Move
       const moveVector = vec2.subtract( [], player.pos, entity.pos );
       const distanceFrom = vec2.len( moveVector );
       vec2.normalize( moveVector, moveVector );
@@ -56,15 +65,29 @@ gameCanvas.update = ( dt ) => {
         }
       } );
 
-      const moveDist = sigma( distanceFrom ) * EnemySpeed * dt;
+      const moveDist = Math.tanh( 10 * distanceFrom ) * EnemySpeed * dt;
       vec2.scaleAndAdd( entity.pos, entity.pos, moveVector, moveDist );
+
+      // Attack (if in range)
+      if ( distanceFrom < player.radius + entity.radius + EnemyBiteDist ) {
+        if ( entity.timers.delay <= 0 ) {
+          console.log( 'Bite!' );
+          entity.animation = { name: 'bite', time: 0 };
+          entity.timers.delay += 800;
+
+          // TODO: Do actual bite (damage player, etc)
+        }
+      }
+      else {
+        if ( entity.timers.delay <= 0 ) {
+          if ( entity.animation?.name != 'walk' ) {
+            console.log( 'Walk!' );
+            entity.animation = { name: 'walk', time: 0 };
+          }
+        }
+      }
     }
   } );
-}
-
-// Play with different functions here?
-function sigma( x ) {
-  return Math.tanh( 10 * x );
 }
 
 gameCanvas.draw = ( ctx ) => {

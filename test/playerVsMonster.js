@@ -35,7 +35,9 @@ gameCanvas.update = ( dt ) => {
     // Multiple timers? Or one delay for everything? (might want to track various actions being ready separately)
     entity.timers ??= { delay: 0 };
     for ( const timer in entity.timers ) {
-      entity.timers[ timer ] -= dt;
+      if ( entity.timers[ timer ] > 0 ) {
+        entity.timers[ timer ] -= dt;
+      }
     }
 
     if ( entity.animation ) {

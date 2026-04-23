@@ -38,10 +38,16 @@ gameCanvas.draw = ( ctx ) => {
       const dir = mousePos[ 0 ] < enemy.pos[ 0 ] ? 1 : -1;
       ctx.scale( dir * ratio * enemy.radius * 2, enemy.radius * 2 );
 
-      const walkOffset = 0.125 * Math.cos( time / 150 );
+      // const walkOffset = 0.125 * Math.cos( time / 150 );
+      // ctx.translate( 0, -walkOffset / 2 );
+      // ctx.scale( 1, 1 + walkOffset );
 
-      ctx.translate( 0, -walkOffset / 2 );
-      ctx.scale( 1, 1 + walkOffset );
+      const biteOffset = 0.25 + 0.25 * Math.cos( time / 150 );
+
+      ctx.translate( -biteOffset / 2, 0 );
+
+      // scaleX, skewY, skewX, scaleY, translateX, translateY
+      ctx.transform( 1, 0, biteOffset, 1, 0, 0 );
 
       ctx.drawImage( image, -0.5, -0.5, 1, 1 );
     }

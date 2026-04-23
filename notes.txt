@@ -1,3 +1,13 @@
+4/23:
+
+Brief housekeeping detour
+  - Put the grid code in Canvas, since I'm always using it to draw
+    - as a helper. 
+      - how should it accomodate scrolling and zooming?
+    - Don't put it in Canavs, just make it a helper
+    - Even if all it's doing is Grid, it's easier to keep track of and reuse later
+
+
 4/22:
 
 Got some nice "move to mouse" with avoidance working earlier. What next?
@@ -20,6 +30,13 @@ Player
 Obstacles?
   - bevouliin.com guy has some nice rocks, too
   - could use these as obstacles to make swarm flow a little more interesting
+
+DONE: Animating with transforms
+  - Squish up and down to walk
+  - Skew forward to bite?
+  - Or rear back then rotate forward?
+  - These were straightforward, but look pretty good!
+    - I like the style of one image being transformed like this, the paper doll or whatever
 
 
 4/14:

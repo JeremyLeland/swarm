@@ -141,6 +141,15 @@ export class GameCanvas {
     this.#isAnimated = false;
   }
 
+  toggle() {
+    if ( this.#isAnimated ) {
+      this.stop();
+    }
+    else {
+      this.start();
+    }
+  }
+
   //
   // Drawing
   //

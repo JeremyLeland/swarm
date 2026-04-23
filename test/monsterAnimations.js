@@ -1,6 +1,7 @@
 // Try out different monster animations with transforms
 
 import { GameCanvas } from '../src/common/GameCanvas.js';
+import * as Grid from '../src/common/Grid.js';
 import { vec2 } from '../lib/gl-matrix.js';
 
 const image = new Image();
@@ -25,8 +26,6 @@ let time = 0;
 gameCanvas.update = ( dt ) => {
   time += dt;
 }
-
-gameCanvas.start();
 
 gameCanvas.draw = ( ctx ) => {
 
@@ -54,31 +53,20 @@ gameCanvas.draw = ( ctx ) => {
     ctx.restore();
   } );
 
-  drawGrid( ctx, gameCanvas.bounds );
+  Grid.draw( ctx, gameCanvas.bounds );
 }
+
+gameCanvas.start();
+
+document.addEventListener( 'keydown', e => {
+  if ( e.key == ' ' ) {
+    gameCanvas.toggle();
+  }
+} );
 
 gameCanvas.pointerMove = ( m ) => {
   mousePos[ 0 ] = m.x;
   mousePos[ 1 ] = m.y;
 
   gameCanvas.redraw();
-}
-
-function drawGrid( ctx, bounds, thickness ) {
-
-  const width = bounds[ 2 ] - bounds[ 0 ];
-  const height = bounds[ 3 ] - bounds[ 1 ];
-
-  // Make lines legible for any thickness (if none specified)
-  thickness ??= Math.max( width, height ) / 1000;
-
-  const ORIGIN = '#777', OTHER = '#5555';
-  for ( let row = bounds[ 1 ]; row <= bounds[ 3 ]; row ++ ) {
-    ctx.fillStyle = row == 0 ? ORIGIN : OTHER;
-    ctx.fillRect( bounds[ 0 ], row, width, thickness );
-  }
-  for ( let col = bounds[ 0 ]; col <= bounds[ 2 ]; col ++ ) {
-    ctx.fillStyle = col == 0 ? ORIGIN : OTHER;
-    ctx.fillRect( col, bounds[ 1 ], thickness, height );
-  }
 }

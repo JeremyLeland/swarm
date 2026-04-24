@@ -6,8 +6,17 @@ import { vec2 } from '../lib/gl-matrix.js';
 
 import * as Entities from '../src/Entities.js';
 
+const PlayerSpeed = 0.003;
 const EnemyBiteDist = 0.4;
+const EnemyBiteDelay = 800;
 const EnemySpeed = 0.002;
+
+const playerInput = {
+  left:   false,
+  up:     false,
+  right:  false,
+  down:   false,
+};
 
 const player = {
   type: 'player',
@@ -44,44 +53,77 @@ gameCanvas.update = ( dt ) => {
       entity.animation.time += dt;
     }
 
-    if ( entity.type == 'monster' ) {
-      // Move
-      const moveVector = vec2.subtract( [], player.pos, entity.pos );
-      const distanceFrom = vec2.len( moveVector );
+    if ( entity.type == 'player' ) {
+      const moveVector = [
+        ( playerInput.left ? -1 : 0 ) + ( playerInput.right ? 1 : 0 ),
+        ( playerInput.up   ? -1 : 0 ) + ( playerInput.down  ? 1 : 0 ),
+      ];
       vec2.normalize( moveVector, moveVector );
 
-      entities.forEach( other => {
-        if ( entity != other ) {
-          // Opposite direction so we avoid other
-          const toOther = vec2.subtract( [], entity.pos, other.pos );
-          const distToOther = Math.max( 1e-6, vec2.len( toOther ) - entity.radius - other.radius );
-          vec2.normalize( toOther, toOther );
+      // Only change direction when actively moving left or right
+      if ( playerInput.left ) {
+        entity.facing = Entities.Facing.Left;
+      }
+      else if ( playerInput.right ) {
+        entity.facing = Entities.Facing.Right;
+      }
 
-          // This function is infinite at f(0) and close to 0 at f(1)
-          const weight = 1 / Math.tanh( 3 * distToOther ) - 1;
-
-          // TODO: Incorporate radius somehow, so bigger enemies push smaller ones around more?
-
-          // vec2.scaleAndAdd( avoid, avoid, toOther, weight );
-          vec2.scaleAndAdd( moveVector, moveVector, toOther, weight );
-        }
-      } );
-
-      const moveDist = Math.tanh( 10 * distanceFrom ) * EnemySpeed * dt;
-      vec2.scaleAndAdd( entity.pos, entity.pos, moveVector, moveDist );
-
-      // Attack (if in range)
-      if ( distanceFrom < player.radius + entity.radius + EnemyBiteDist ) {
-        if ( entity.timers.delay <= 0 ) {
-          console.log( 'Bite!' );
-          entity.animation = { name: 'bite', time: 0 };
-          entity.timers.delay += 800;
-
-          // TODO: Do actual bite (damage player, etc)
+      // Walk animation
+      if ( moveVector[ 0 ] != 0 || moveVector[ 1 ] != 0 ) {
+        if ( entity.animation?.name != 'walk' ) {
+          console.log( 'Player Walk!' );
+          entity.animation = { name: 'walk', time: 0 };
         }
       }
       else {
-        if ( entity.timers.delay <= 0 ) {
+        if ( entity.animation?.name == 'walk' ) {
+          console.log( 'Player Stop Walk!' );
+          entity.animation = null;
+        }
+      }
+
+      vec2.scaleAndAdd( entity.pos, entity.pos, moveVector, PlayerSpeed * dt );
+    }
+
+    if ( entity.type == 'monster' ) {
+      if ( entity.timers.delay <= 0 ) {
+        // Move
+        const moveVector = vec2.subtract( [], player.pos, entity.pos );
+        const distanceFrom = vec2.len( moveVector );
+        vec2.normalize( moveVector, moveVector );
+
+        entity.facing = moveVector[ 0 ] <= 0 ? Entities.Facing.Left : Entities.Facing.Right;
+
+        entities.forEach( other => {
+          if ( entity != other ) {
+            // Opposite direction so we avoid other
+            const toOther = vec2.subtract( [], entity.pos, other.pos );
+            const distToOther = Math.max( 1e-6, vec2.len( toOther ) - entity.radius - other.radius );
+            vec2.normalize( toOther, toOther );
+
+            // This function is infinite at f(0) and close to 0 at f(1)
+            const weight = 1 / Math.tanh( 3 * distToOther ) - 1;
+
+            // TODO: Incorporate radius somehow, so bigger enemies push smaller ones around more?
+
+            // vec2.scaleAndAdd( avoid, avoid, toOther, weight );
+            vec2.scaleAndAdd( moveVector, moveVector, toOther, weight );
+          }
+        } );
+
+        const moveDist = Math.tanh( 10 * distanceFrom ) * EnemySpeed * dt;
+        vec2.scaleAndAdd( entity.pos, entity.pos, moveVector, moveDist );
+
+
+        // Attack (if in range)
+        if ( distanceFrom < player.radius + entity.radius + EnemyBiteDist ) {
+          console.log( 'Bite!' );
+          entity.animation = { name: 'bite', time: 0 };
+          entity.timers.delay += EnemyBiteDelay;
+
+          // TODO: Do actual bite (damage player, etc)
+        }
+        else {
           if ( entity.animation?.name != 'walk' ) {
             console.log( 'Walk!' );
             entity.animation = { name: 'walk', time: 0 };
@@ -100,8 +142,21 @@ gameCanvas.draw = ( ctx ) => {
 
 gameCanvas.start();
 
-document.addEventListener( 'keydown', e => {
-  if ( e.key == ' ' ) {
-    gameCanvas.toggle();
-  }
-} );
+
+const keyDownAction = {
+  ' ': () => gameCanvas.toggle(),
+  'w': () => playerInput.up = true,
+  'a': () => playerInput.left = true,
+  's': () => playerInput.down = true,
+  'd': () => playerInput.right = true,
+}
+
+const keyUpAction = {
+  'w': () => playerInput.up = false,
+  'a': () => playerInput.left = false,
+  's': () => playerInput.down = false,
+  'd': () => playerInput.right = false,
+}
+
+document.addEventListener( 'keydown', e => keyDownAction[ e.key ]?.() );
+document.addEventListener( 'keyup', e => keyUpAction[ e.key ]?.() );

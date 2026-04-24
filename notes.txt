@@ -7,6 +7,13 @@ Brief housekeeping detour
     - Don't put it in Canavs, just make it a helper
     - Even if all it's doing is Grid, it's easier to keep track of and reuse later
 
+Load multiple images with await
+  - Used GPT, but the helper function is a nice clean result
+
+Got monster to walk up to player and bite them
+  - Kind of redoing the animation work I did for kingdoms, but hopefully simpler
+  - Maybe this will help me make a more coherent animation system
+
 
 4/22:
 

@@ -19,7 +19,7 @@ async function loadImages( sourceMap ) {
 }
 
 
-const Facing = {
+export const Facing = {
   Left: 0,
   Right: 1,
 };

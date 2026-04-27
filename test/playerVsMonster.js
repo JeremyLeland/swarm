@@ -31,7 +31,10 @@ const player = {
 
 const entities = [
   player,
-  { type: 'monster', pos: [ 3, 3 ], radius: 0.5, facing: 0 },
+  { type: 'monster', pos: [ 1, 1 ], radius: 0.3, facing: 0 },
+  { type: 'monster', pos: [ 1, 1 ], radius: 0.4, facing: 0 },
+  { type: 'monster', pos: [ 1, 1 ], radius: 0.5, facing: 0 },
+  { type: 'monster', pos: [ 1, 1 ], radius: 0.6, facing: 0 },
 ];
 
 const gameCanvas = new GameCanvas();
@@ -71,13 +74,11 @@ gameCanvas.update = ( dt ) => {
       // Walk animation
       if ( moveVector[ 0 ] != 0 || moveVector[ 1 ] != 0 ) {
         if ( entity.animation?.name != 'walk' ) {
-          console.log( 'Player Walk!' );
           entity.animation = { name: 'walk', time: 0 };
         }
       }
       else {
         if ( entity.animation?.name == 'walk' ) {
-          console.log( 'Player Stop Walk!' );
           entity.animation = null;
         }
       }
@@ -112,15 +113,18 @@ gameCanvas.update = ( dt ) => {
           }
         } );
 
-        // Normalize again after adding all the avoid vectors
-        vec2.normalize( moveVector, moveVector );
+        // Cap at length of 1 (normalizing might make short vectors longer) (should it use other weighting?)
+        const moveLength = vec2.len( moveVector );
+        if ( moveLength > 1 ) {
+          moveVector[ 0 ] /= moveLength;
+          moveVector[ 1 ] /= moveLength;
+        }
 
         const moveDist = Math.tanh( 10 * distanceFrom ) * EnemySpeed * dt;
         vec2.scaleAndAdd( entity.pos, entity.pos, moveVector, moveDist );
 
         // Attack (if in range)
         if ( distanceFrom < player.radius + entity.radius + EnemyBiteDist ) {
-          console.log( 'Bite!' );
           entity.animation = { name: 'bite', time: 0 };
           entity.timers.delay += EnemyBiteDelay;
 

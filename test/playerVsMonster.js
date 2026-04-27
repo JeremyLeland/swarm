@@ -90,7 +90,8 @@ gameCanvas.update = ( dt ) => {
         // Move
         const moveVector = vec2.subtract( [], player.pos, entity.pos );
         const distanceFrom = vec2.len( moveVector );
-        vec2.normalize( moveVector, moveVector );
+
+        vec2.normalize( moveVector, moveVector );   // this is defaulting a weight of 1, maybe change later
 
         entity.facing = moveVector[ 0 ] <= 0 ? Entities.Facing.Left : Entities.Facing.Right;
 
@@ -111,9 +112,11 @@ gameCanvas.update = ( dt ) => {
           }
         } );
 
+        // Normalize again after adding all the avoid vectors
+        vec2.normalize( moveVector, moveVector );
+
         const moveDist = Math.tanh( 10 * distanceFrom ) * EnemySpeed * dt;
         vec2.scaleAndAdd( entity.pos, entity.pos, moveVector, moveDist );
-
 
         // Attack (if in range)
         if ( distanceFrom < player.radius + entity.radius + EnemyBiteDist ) {

@@ -1,3 +1,12 @@
+4/27:
+
+Player needs hands to hold weapons
+  - Gray circles for now
+  - Hands should aim toward nearest enemy (eventually shooting them)
+
+Bug fix: prevent entities from bouncing waaaay far away when they get too close
+  - Cap speed for entity movement? (some temporary overlap is fine)
+
 4/23:
 
 Brief housekeeping detour

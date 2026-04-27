@@ -52,6 +52,18 @@ export function draw( ctx, entity ) {
     }
 
     ctx.drawImage( image, -0.5, -0.5, 1, 1 );
+
+    entity.weapons?.forEach( weapon => {
+      ctx.rotate( weapon.angle );
+      ctx.translate( 0.75, 0 );
+
+      ctx.scale( 0.2, 0.2 );
+
+      ctx.fillStyle = '#c7b299';
+      ctx.beginPath();
+      ctx.arc( 0, 0, 0.5, 0, Math.PI * 2 );
+      ctx.fill();
+    } );
   }
   ctx.restore();
 }

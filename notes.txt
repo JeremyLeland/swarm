@@ -2,9 +2,29 @@
 
 Player needs hands to hold weapons
   - Gray circles for now
+    - Someday render these to offscreenBitmap and draw like everything else?
   - Hands should aim toward nearest enemy (eventually shooting them)
+    - This could get tricky -- divy-ing up targets between the hands
+      - Probably want to take different targets
+      - Take target requiring least movement to aim at?
+      - Should overall target closest
+      - Give each weapon sectors?
+        - But what if they are all on same side?
+        - Can multiple weapons target same enemy?
+          - Maybe only a boss?
+    - For now, have one weapon target closest enemy
+      - Even this could get issues if two enemies take turns being closest...
+        - Want to avoid jitter. 
+          - Make target "sticky" so it needs to be extra closer to change targets?
+            - Weapons need to remember their targets this way
+              - each enemy would need a unique id, then...
+          - Maybe we can still achieve this by weighting angle change more than distance
+            - Would need to be quite a bit closer to make us move toward it
+              - Still feel like there's a boundary here that might cause jitter
+                - Maybe it won't come up much
+                - Try it without weapon memory first, maybe it just won't be much of an issue
 
-Bug fix: prevent entities from bouncing waaaay far away when they get too close
+DONE: Bug fix: prevent entities from bouncing waaaay far away when they get too close
   - Cap speed for entity movement? (some temporary overlap is fine)
 
 4/23:

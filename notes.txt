@@ -1,8 +1,18 @@
+4/30:
+
+DONE: Bullets damage enemies
+
+Bites damage player
+  - For now, have enemy directly damage player
+  - In the future, would we want some sort of bite "object" for collision detection?
+    - If our guy ever does melee, it might need to damage multiple at once
+      - It could also just do it directly without an intermediate object
+
 4/29:
 
-Shoot bullets from hand at constant rate
+DONE: Shoot bullets from hand at constant rate
 
-Remove bullets when out of range (short range for testing)
+DONE: Remove bullets when out of range (short range for testing)
 
 4/27:
 

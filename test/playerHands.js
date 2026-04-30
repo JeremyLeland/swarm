@@ -1,14 +1,19 @@
 // Monster moves to player and bites player to death
 
 import { GameCanvas } from '../src/common/GameCanvas.js';
+import * as Angle from '../src/common/Angle.js';
 import * as Grid from '../src/common/Grid.js';
 import { vec2 } from '../lib/gl-matrix.js';
 
 import * as Entities from '../src/Entities.js';
 
 const PlayerSpeed = 0.003;
+const PlayerTargetDeltaAngle = 0.1;
+
 const PistolDelay = 500;
+const PistolRange = 2;
 const PistolBulletSpeed = 0.01;
+const PistolBulletDamage = 1;
 
 const playerInput = {
   left:   false,
@@ -49,23 +54,33 @@ gameCanvas.update = ( dt ) => {
 
   vec2.scaleAndAdd( player.pos, player.pos, moveVector, PlayerSpeed * dt );
 
-  const target = entities[ 1 ];
-
   player.weapons.forEach( weapon => {
-    const toTarget = vec2.subtract( [], target.pos, player.pos );
-    weapon.angle = Math.atan2( toTarget[ 1 ], toTarget[ 0 ] );
-
-    if ( weapon.delay <= 0 ) {
-      const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
-      const pos = vec2.scaleAndAdd( [], player.pos, dir, Entities.PlayerInfo.Hand.Distance );
-      const vel = vec2.scale( [], dir, PistolBulletSpeed );
-
-      entities.push( { type: 'bullet', pos: pos, vel: vel, angle: weapon.angle, radius: 0.1, life: 1 } );
-
-      weapon.delay += PistolDelay;
-    }
-    else {
+    if ( weapon.delay > 0 ) {
       weapon.delay -= dt;
+    }
+
+    const target = entities[ 1 ];
+
+    if ( target ) {
+      const toTarget = vec2.subtract( [], target.pos, player.pos );
+      const targetDist = vec2.length( toTarget );
+      const targetAngle = Math.atan2( toTarget[ 1 ], toTarget[ 0 ] );
+
+      // TODO: Move toward target (don't jump immediately there)
+      weapon.angle = targetAngle;
+
+      if ( Math.abs( Angle.deltaAngle( weapon.angle, targetAngle ) ) < PlayerTargetDeltaAngle &&
+           targetDist < PistolRange &&
+           weapon.delay <= 0 ) {
+
+        const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
+        const pos = vec2.scaleAndAdd( [], player.pos, dir, Entities.PlayerInfo.Hand.Distance );
+        const vel = vec2.scale( [], dir, PistolBulletSpeed );
+
+        entities.push( { type: 'bullet', pos: pos, vel: vel, angle: weapon.angle, radius: 0.1, life: 1 } );
+
+        weapon.delay += PistolDelay;
+      }
     }
   } );
 
@@ -74,12 +89,23 @@ gameCanvas.update = ( dt ) => {
       vec2.scaleAndAdd( entity.pos, entity.pos, entity.vel, dt );
     }
 
-    // Remove out-of-bounds bullets
     if ( entity.type == 'bullet' ) {
+      // Remove out-of-bounds bullets
       if ( entity.pos[ 0 ] < -3 || entity.pos[ 0 ] > 3 ||
            entity.pos[ 1 ] < -3 || entity.pos[ 1 ] > 3 ) {
         entity.life = 0;
       }
+
+      // Check for collision against monsters
+      // TODO: Sweep collision test to find hit time (and make partices there?)
+      entities.forEach( other => {
+        if ( entity != other && other.type == 'monster' ) {
+          if ( vec2.distance( entity.pos, other.pos ) < entity.radius + other.radius ) {
+            other.life -= PistolBulletDamage;
+            entity.life = 0;
+          }
+        }
+      } );
     }
   } );
 
@@ -88,6 +114,12 @@ gameCanvas.update = ( dt ) => {
 
 gameCanvas.draw = ( ctx ) => {
   entities.forEach( enemy => Entities.draw( ctx, enemy ) );
+
+  ctx.beginPath();
+  ctx.arc( player.pos[ 0 ], player.pos[ 1 ], PistolRange, 0, Math.PI * 2 );
+  ctx.lineWidth = 0.01;
+  ctx.strokeStyle = 'yellow';
+  ctx.stroke();
 
   Grid.draw( ctx, gameCanvas.bounds );
 }

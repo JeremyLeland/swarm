@@ -4,7 +4,7 @@ DONE: Bullets damage enemies
 
 DONE: Aim at closest enemy
 
-Move hand toward targetAngle, don't immediately jump there
+DONE: Move hand toward targetAngle, don't immediately jump there
 
 Bites damage player
   - For now, have enemy directly damage player

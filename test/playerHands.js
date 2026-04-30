@@ -8,6 +8,7 @@ import { vec2 } from '../lib/gl-matrix.js';
 import * as Entities from '../src/Entities.js';
 
 const PlayerSpeed = 0.003;
+const PlayerHandSpeed = 0.003;
 const PlayerTargetDeltaAngle = 0.1;
 
 const PistolDelay = 500;
@@ -76,8 +77,8 @@ gameCanvas.update = ( dt ) => {
     } );
 
     if ( target ) {
-      // TODO: Move toward target (don't jump immediately there)
-      weapon.angle = targetAngle;
+      const handDist = Angle.deltaAngle( weapon.angle, targetAngle );
+      weapon.angle += Math.tanh( 10 * handDist ) * PlayerHandSpeed * dt;
 
       if ( Math.abs( Angle.deltaAngle( weapon.angle, targetAngle ) ) < PlayerTargetDeltaAngle &&
            targetDist < PistolRange &&

@@ -7,6 +7,8 @@ import { vec2 } from '../lib/gl-matrix.js';
 import * as Entities from '../src/Entities.js';
 
 const PlayerSpeed = 0.003;
+const PistolDelay = 500;
+const PistolBulletSpeed = 0.01;
 
 const playerInput = {
   left:   false,
@@ -21,15 +23,15 @@ const player = {
   radius: 0.5,
   facing: 0,
   weapons: [
-    { type: 'pistol', angle: 0 },
+    { type: 'pistol', angle: 0, delay: 0 },
   ],
 };
 
 const entities = [
   player,
-  { type: 'monster', pos: [ -1, 1 ], radius: 0.3, facing: 0 },
+  { type: 'monster', pos: [ -1, 1 ], radius: 0.3, facing: 1 },
   { type: 'monster', pos: [ -2, 2 ], radius: 0.4, facing: 0 },
-  { type: 'monster', pos: [ 2, 1 ], radius: 0.5, facing: 0 },
+  { type: 'monster', pos: [ 2, 1 ], radius: 0.5, facing: 1 },
   { type: 'monster', pos: [ 1, 2 ], radius: 0.6, facing: 0 },
 ];
 
@@ -51,6 +53,25 @@ gameCanvas.update = ( dt ) => {
   player.weapons.forEach( weapon => {
     const toTarget = vec2.subtract( [], target.pos, player.pos );
     weapon.angle = Math.atan2( toTarget[ 1 ], toTarget[ 0 ] );
+
+    if ( weapon.delay <= 0 ) {
+      const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
+      const pos = vec2.scaleAndAdd( [], player.pos, dir, Entities.PlayerInfo.Hand.Distance );
+      const vel = vec2.scale( [], dir, PistolBulletSpeed );
+
+      entities.push( { type: 'bullet', pos: pos, vel: vel, angle: weapon.angle, radius: 0.1 } );
+
+      weapon.delay += PistolDelay;
+    }
+    else {
+      weapon.delay -= dt;
+    }
+  } );
+
+  entities.forEach( entity => {
+    if ( entity.vel ) {
+      vec2.scaleAndAdd( entity.pos, entity.pos, entity.vel, dt );
+    }
   } );
 }
 

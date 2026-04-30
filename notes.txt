@@ -1,3 +1,9 @@
+4/29:
+
+Shoot bullets from hand at constant rate
+
+Remove bullets when out of range (short range for testing)
+
 4/27:
 
 Player needs hands to hold weapons

@@ -1,6 +1,7 @@
 const images = await loadImages( {
   'player': './images/marshmallow_earphone-01.png',
   'monster': './images/green1.png',
+  'bullet': './images/bullet.png',
 } );
 
 async function loadImages( sourceMap ) {
@@ -24,17 +25,36 @@ export const Facing = {
   Right: 1,
 };
 
+export const PlayerInfo = {
+  Hand: {
+    Radius: 0.2,
+    Distance: 0.75,
+  },
+}
+
 export function draw( ctx, entity ) {
   const image = images[ entity.type ];
 
   ctx.save(); {
     ctx.translate( ...entity.pos );
 
-    // player image faces left, need to flip if facing right
-    const dir = entity.facing == Facing.Left ? 1 : -1;
-    const ratio = image.width / image.height;
-    ctx.scale( dir * ratio * entity.radius * 2, entity.radius * 2 );
+    if ( entity.angle ) {
+      ctx.rotate( entity.angle );
+    }
 
+    const ratio = image.width / image.height;
+    ctx.scale( ratio * entity.radius * 2, entity.radius * 2 );
+
+    // player image faces left, need to flip if facing right
+    // TODO: Would it make more sense to have everything face right (angle = 0) by default?
+    if ( entity.facing ) {
+      const dir = entity.facing == Facing.Left ? 1 : -1;
+      ctx.scale( dir, 1 );
+    }
+
+    //
+    // Animations
+    //
     if ( entity.animation?.name == 'walk' ) {
       const walkOffset = 0.1 * Math.sin( entity.animation.time / 100 );
       ctx.translate( 0, -walkOffset / 2 );
@@ -55,9 +75,9 @@ export function draw( ctx, entity ) {
 
     entity.weapons?.forEach( weapon => {
       ctx.rotate( weapon.angle );
-      ctx.translate( 0.75, 0 );
+      ctx.translate( PlayerInfo.Hand.Distance, 0 );
 
-      ctx.scale( 0.2, 0.2 );
+      ctx.scale( PlayerInfo.Hand.Radius, PlayerInfo.Hand.Radius );
 
       ctx.fillStyle = '#c7b299';
       ctx.beginPath();

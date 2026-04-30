@@ -12,6 +12,12 @@ Bites damage player
     - If our guy ever does melee, it might need to damage multiple at once
       - It could also just do it directly without an intermediate object
 
+Moving different tests into one update() in World
+
+Currently have player.input.left/right/up/down, but this means it will persist with saving
+  - Input like this should probably be separate
+  - Private state in world? (still want actual input management listeners etc to be separate)
+
 4/29:
 
 DONE: Shoot bullets from hand at constant rate

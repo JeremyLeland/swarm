@@ -59,13 +59,23 @@ gameCanvas.update = ( dt ) => {
       weapon.delay -= dt;
     }
 
-    const target = entities[ 1 ];
+    let target, targetDist = Infinity, targetAngle;
+    entities.forEach( other => {
+      if ( other.type == 'monster' ) {
+        const toOther = vec2.subtract( [], other.pos, player.pos );
+        const dist = vec2.length( toOther ) - player.radius - other.radius;
+        const angle = Math.atan2( toOther[ 1 ], toOther[ 0 ] );
+
+        // TODO: Account for angle so we aren't making as dramatic a switch?
+        if ( dist < targetDist ) {
+          target = other;
+          targetDist = dist;
+          targetAngle = angle;
+        }
+      }
+    } );
 
     if ( target ) {
-      const toTarget = vec2.subtract( [], target.pos, player.pos );
-      const targetDist = vec2.length( toTarget );
-      const targetAngle = Math.atan2( toTarget[ 1 ], toTarget[ 0 ] );
-
       // TODO: Move toward target (don't jump immediately there)
       weapon.angle = targetAngle;
 
@@ -116,7 +126,7 @@ gameCanvas.draw = ( ctx ) => {
   entities.forEach( enemy => Entities.draw( ctx, enemy ) );
 
   ctx.beginPath();
-  ctx.arc( player.pos[ 0 ], player.pos[ 1 ], PistolRange, 0, Math.PI * 2 );
+  ctx.arc( player.pos[ 0 ], player.pos[ 1 ], player.radius + PistolRange, 0, Math.PI * 2 );
   ctx.lineWidth = 0.01;
   ctx.strokeStyle = 'yellow';
   ctx.stroke();

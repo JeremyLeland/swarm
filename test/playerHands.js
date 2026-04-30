@@ -22,17 +22,18 @@ const player = {
   pos: [ 0, 0 ],
   radius: 0.5,
   facing: 0,
+  life: 100,
   weapons: [
     { type: 'pistol', angle: 0, delay: 0 },
   ],
 };
 
-const entities = [
+let entities = [
   player,
-  { type: 'monster', pos: [ -1, 1 ], radius: 0.3, facing: 1 },
-  { type: 'monster', pos: [ -2, 2 ], radius: 0.4, facing: 0 },
-  { type: 'monster', pos: [ 2, 1 ], radius: 0.5, facing: 1 },
-  { type: 'monster', pos: [ 1, 2 ], radius: 0.6, facing: 0 },
+  { type: 'monster', pos: [ -1, 1 ], radius: 0.3, facing: 1, life: 1 },
+  { type: 'monster', pos: [ -2, 2 ], radius: 0.4, facing: 0, life: 2 },
+  { type: 'monster', pos: [  2, 1 ], radius: 0.5, facing: 1, life: 3 },
+  { type: 'monster', pos: [  1, 2 ], radius: 0.6, facing: 0, life: 4 },
 ];
 
 const gameCanvas = new GameCanvas();
@@ -59,7 +60,7 @@ gameCanvas.update = ( dt ) => {
       const pos = vec2.scaleAndAdd( [], player.pos, dir, Entities.PlayerInfo.Hand.Distance );
       const vel = vec2.scale( [], dir, PistolBulletSpeed );
 
-      entities.push( { type: 'bullet', pos: pos, vel: vel, angle: weapon.angle, radius: 0.1 } );
+      entities.push( { type: 'bullet', pos: pos, vel: vel, angle: weapon.angle, radius: 0.1, life: 1 } );
 
       weapon.delay += PistolDelay;
     }
@@ -72,7 +73,17 @@ gameCanvas.update = ( dt ) => {
     if ( entity.vel ) {
       vec2.scaleAndAdd( entity.pos, entity.pos, entity.vel, dt );
     }
+
+    // Remove out-of-bounds bullets
+    if ( entity.type == 'bullet' ) {
+      if ( entity.pos[ 0 ] < -3 || entity.pos[ 0 ] > 3 ||
+           entity.pos[ 1 ] < -3 || entity.pos[ 1 ] > 3 ) {
+        entity.life = 0;
+      }
+    }
   } );
+
+  entities = entities.filter( e => e.life > 0 );
 }
 
 gameCanvas.draw = ( ctx ) => {

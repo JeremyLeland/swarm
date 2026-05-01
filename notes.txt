@@ -13,8 +13,16 @@ Bites damage player
       - It could also just do it directly without an intermediate object
 
 Moving different tests into one update() in World
+  - Player movement
+    - Still needs animation!
+    - Re-use animation code from monsters?
+    - Could also re-use movement code for if we have a goalPos in input (for click to move player)
+    - Really, just the avoid code should be behind "is monster" guard
+  - DONE: Monster movement
+  - Player hands and shooting bullets
+  - Bullets
 
-Currently have player.input.left/right/up/down, but this means it will persist with saving
+DONE: Currently have player.input.left/right/up/down, but this means it will persist with saving
   - Input like this should probably be separate
   - Private state in world? (still want actual input management listeners etc to be separate)
 

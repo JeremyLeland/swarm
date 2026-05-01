@@ -44,13 +44,31 @@ export class World {
     const player = this.entities.find( e => e.type === 'player' );
 
     if ( player ) {
+      // Only change direction when actively trying to move left or right
+      if ( input.left ) {
+        player.facing = Entities.Facing.Left;
+      }
+      else if ( input.right ) {
+        player.facing = Entities.Facing.Right;
+      }
+
       const moveVector = [
         ( input.left ? -1 : 0 ) + ( input.right ? 1 : 0 ),
         ( input.up   ? -1 : 0 ) + ( input.down  ? 1 : 0 ),
       ];
-      vec2.normalize( moveVector, moveVector );
 
-      vec2.scaleAndAdd( player.pos, player.pos, moveVector, PlayerSpeed * dt );
+      if ( moveVector[ 0 ] !== 0 || moveVector[ 1 ] !== 0 ) {
+        vec2.normalize( moveVector, moveVector );
+        vec2.scaleAndAdd( player.pos, player.pos, moveVector, PlayerSpeed * dt );
+
+        if ( player.animation?.name != 'walk' ) {
+          console.log( 'Player Walk!' );
+          player.animation = { name: 'walk', time: 0 };
+        }
+      }
+      else {
+        delete player.animation;
+      }
     }
 
     this.entities.forEach( entity => {

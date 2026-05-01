@@ -13,7 +13,7 @@ Bites damage player
       - It could also just do it directly without an intermediate object
 
 Moving different tests into one update() in World
-  - Player movement
+  - DONE: Player movement
     - Still needs animation!
     - Re-use animation code from monsters?
     - Could also re-use movement code for if we have a goalPos in input (for click to move player)

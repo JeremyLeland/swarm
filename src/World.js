@@ -1,8 +1,16 @@
+import * as Angle from '../src/common/Angle.js';
 import * as Entities from './Entities.js';
 
 import { vec2 } from '../lib/gl-matrix.js';
 
 const PlayerSpeed = 0.003;
+const PlayerHandSpeed = 0.003;
+const PlayerTargetDeltaAngle = 0.1;
+
+const PistolDelay = 500;
+const PistolRange = 2;
+const PistolBulletSpeed = 0.01;
+const PistolBulletDamage = 1;
 
 const EnemyBiteDist = 0.4;
 const EnemyBiteDelay = 800;
@@ -44,7 +52,9 @@ export class World {
     const player = this.entities.find( e => e.type === 'player' );
 
     if ( player ) {
-      // Only change direction when actively trying to move left or right
+      //
+      // Player Movement
+      //
       if ( input.left ) {
         player.facing = Entities.Facing.Left;
       }
@@ -69,6 +79,49 @@ export class World {
       else {
         delete player.animation;
       }
+
+      //
+      // Player Weapons
+      //
+      player.weapons.forEach( weapon => {
+        if ( weapon.delay > 0 ) {
+          weapon.delay -= dt;
+        }
+
+        let target, targetDist = Infinity, targetAngle;
+        this.entities.forEach( other => {
+          if ( other.type == 'monster' ) {
+            const toOther = vec2.subtract( [], other.pos, player.pos );
+            const dist = vec2.length( toOther ) - player.radius - other.radius;
+            const angle = Math.atan2( toOther[ 1 ], toOther[ 0 ] );
+
+            // TODO: Account for angle so we aren't making as dramatic a switch?
+            if ( dist < targetDist ) {
+              target = other;
+              targetDist = dist;
+              targetAngle = angle;
+            }
+          }
+        } );
+
+        if ( target ) {
+          const handDist = Angle.deltaAngle( weapon.angle, targetAngle );
+          weapon.angle += Math.tanh( 10 * handDist ) * PlayerHandSpeed * dt;
+
+          if ( Math.abs( Angle.deltaAngle( weapon.angle, targetAngle ) ) < PlayerTargetDeltaAngle &&
+                targetDist < PistolRange &&
+                weapon.delay <= 0 ) {
+
+            const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
+            const pos = vec2.scaleAndAdd( [], player.pos, dir, Entities.PlayerInfo.Hand.Distance );
+            const vel = vec2.scale( [], dir, PistolBulletSpeed );
+
+            this.entities.push( { type: 'bullet', pos: pos, vel: vel, angle: weapon.angle, radius: 0.1, life: 1 } );
+
+            weapon.delay += PistolDelay;
+          }
+        }
+      } );
     }
 
     this.entities.forEach( entity => {
@@ -76,11 +129,14 @@ export class World {
         entity.animation.time += dt;
       }
 
-      if ( entity.delay > 0 ) {
-        entity.delay -= dt;
-      }
-      else {
-        if ( entity.type === 'monster' ) {
+      //
+      // Monsters
+      //
+      if ( entity.type === 'monster' ) {
+        if ( entity.delay > 0 ) {
+          entity.delay -= dt;
+        }
+        else {
           // Move
           const moveVector = vec2.subtract( [], player.pos, entity.pos );
           const distanceFrom = vec2.len( moveVector );
@@ -132,7 +188,35 @@ export class World {
           }
         }
       }
+
+      //
+      // Bullets
+      //
+      else if ( entity.type == 'bullet' ) {
+        // if ( entity.vel ) {
+          vec2.scaleAndAdd( entity.pos, entity.pos, entity.vel, dt );
+        // }
+
+        // Remove out-of-bounds bullets
+        if ( entity.pos[ 0 ] < -3 || entity.pos[ 0 ] > 3 ||
+             entity.pos[ 1 ] < -3 || entity.pos[ 1 ] > 3 ) {
+          entity.life = 0;
+        }
+
+        // Check for collision against monsters
+        // TODO: Sweep collision test to find hit time (and make partices there?)
+        this.entities.forEach( other => {
+          if ( entity != other && other.type == 'monster' ) {
+            if ( vec2.distance( entity.pos, other.pos ) < entity.radius + other.radius ) {
+              other.life -= PistolBulletDamage;
+              entity.life = 0;
+            }
+          }
+        } );
+      }
     } );
+
+    this.entities = this.entities.filter( e => e.life > 0 );
   }
 
   draw( ctx ) {

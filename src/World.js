@@ -7,6 +7,8 @@ const PlayerSpeed = 0.003;
 const PlayerHandSpeed = 0.003;
 const PlayerTargetDeltaAngle = 0.1;
 
+const PlayerMaxLife = 10;
+
 const FlashDecayRate = 0.005;
 
 const PistolDelay = 500;
@@ -17,6 +19,10 @@ const PistolBulletDamage = 1;
 const EnemyBiteDist = 0.4;
 const EnemyBiteDelay = 800;
 const EnemySpeed = 0.002;
+
+const UIBarWidth = 2;
+const UIBarHeight = 0.2;
+const UIBarLineWidth = 0.01;
 
 export class World {
   // player;
@@ -31,7 +37,7 @@ export class World {
       pos: [ 0, 0 ],
       radius: 0.5,
       facing: 0,
-      life: 100,
+      life: PlayerMaxLife,
       weapons: [
         { type: 'pistol', angle: 0, delay: 0 },
       ],
@@ -142,7 +148,8 @@ export class World {
         if ( entity.delay > 0 ) {
           entity.delay -= dt;
         }
-        else {
+        // TODO: Wander around if no player
+        else if ( player ) {
           // Move
           const moveVector = vec2.subtract( [], player.pos, entity.pos );
           const distanceFrom = vec2.len( moveVector );
@@ -186,6 +193,7 @@ export class World {
             console.log( 'Bite!' );
 
             // TODO: Do actual bite (damage player, etc)
+            player.life -= 1;
             player.flashIntensity = 1;
           }
           else {
@@ -232,5 +240,22 @@ export class World {
   draw( ctx ) {
     // TODO: Should the entities draw code just go here, then?
     this.entities.forEach( entity => Entities.draw( ctx, entity ) );
+
+    // UI
+    const player = this.entities.find( e => e.type === 'player' );
+
+    ctx.save(); {
+      ctx.translate( -2.9, -2.9 );
+
+      if ( player ) {
+        ctx.fillStyle = 'red';
+        ctx.fillRect( 0, 0, UIBarWidth * ( player.life / PlayerMaxLife ), UIBarHeight );
+      }
+
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = UIBarLineWidth;
+      ctx.strokeRect( 0, 0, UIBarWidth, UIBarHeight );
+    }
+    ctx.restore();
   }
 }

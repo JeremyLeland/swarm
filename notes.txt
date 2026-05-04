@@ -1,3 +1,16 @@
+5/4:
+
+Bites damage player
+  - Health indicator 
+    - Do I want these for enemies as well? (maybe for testing at least)
+
+Flash enemies to indicate hit
+  - Especially since bullets sometimes vanish immediately when enemies are close
+  - Should we do this with player too?
+  - Create masked version of each image and draw on top with alpha percent based on flash intensity?
+    - Or even just draw over it for now
+  - Made a test for now, haven't incorporated yet.
+
 4/30:
 
 DONE: Bullets damage enemies

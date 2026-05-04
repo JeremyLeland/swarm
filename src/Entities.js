@@ -4,6 +4,8 @@ const images = await loadImages( {
   'bullet': './images/bullet.png',
 } );
 
+const masks = makeMasks( images );
+
 async function loadImages( sourceMap ) {
   const images = {};
 
@@ -17,6 +19,25 @@ async function loadImages( sourceMap ) {
   // TODO: try/catch for errors?
   await Promise.all( promises );
   return images;
+}
+
+function makeMasks( images ) {
+  const masks = {};
+
+  Object.entries( images ).map( ( [ key, image ] ) => {
+    const mask = new OffscreenCanvas( image.width, image.height );
+    const ctx = mask.getContext( '2d' );
+
+    ctx.drawImage( image, 0, 0 );
+
+    ctx.fillStyle = 'white';
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillRect( 0, 0, mask.width, mask.height );
+
+    masks[ key ] = mask;
+  } );
+
+  return masks;
 }
 
 
@@ -33,7 +54,7 @@ export const PlayerInfo = {
 }
 
 export function draw( ctx, entity ) {
-  const image = images[ entity.type ];
+  const image = images[ entity.type ];     //images[ entity.type ];
 
   ctx.save(); {
     ctx.translate( ...entity.pos );
@@ -75,6 +96,12 @@ export function draw( ctx, entity ) {
       }
 
       ctx.drawImage( image, -0.5, -0.5, 1, 1 );
+
+      if ( entity.flashIntensity ) {
+        ctx.globalAlpha = Math.max( 0, Math.min( 1, entity.flashIntensity ) );
+        ctx.drawImage( masks[ entity.type ], -0.5, -0.5, 1, 1 );
+        ctx.globalAlpha = 1;
+      }
     }
     ctx.restore();
 

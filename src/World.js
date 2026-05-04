@@ -55,16 +55,16 @@ export class World {
       //
       // Player Movement
       //
-      if ( input.left ) {
+      if ( input?.left ) {
         player.facing = Entities.Facing.Left;
       }
-      else if ( input.right ) {
+      else if ( input?.right ) {
         player.facing = Entities.Facing.Right;
       }
 
       const moveVector = [
-        ( input.left ? -1 : 0 ) + ( input.right ? 1 : 0 ),
-        ( input.up   ? -1 : 0 ) + ( input.down  ? 1 : 0 ),
+        ( input?.left ? -1 : 0 ) + ( input?.right ? 1 : 0 ),
+        ( input?.up   ? -1 : 0 ) + ( input?.down  ? 1 : 0 ),
       ];
 
       if ( moveVector[ 0 ] !== 0 || moveVector[ 1 ] !== 0 ) {

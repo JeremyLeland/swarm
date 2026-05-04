@@ -7,6 +7,8 @@ const PlayerSpeed = 0.003;
 const PlayerHandSpeed = 0.003;
 const PlayerTargetDeltaAngle = 0.1;
 
+const FlashDecayRate = 0.005;
+
 const PistolDelay = 500;
 const PistolRange = 2;
 const PistolBulletSpeed = 0.01;
@@ -129,6 +131,10 @@ export class World {
         entity.animation.time += dt;
       }
 
+      if ( entity.flashIntensity > 0 ) {
+        entity.flashIntensity -= FlashDecayRate * dt;
+      }
+
       //
       // Monsters
       //
@@ -178,7 +184,9 @@ export class World {
             entity.delay += EnemyBiteDelay;
 
             console.log( 'Bite!' );
+
             // TODO: Do actual bite (damage player, etc)
+            player.flashIntensity = 1;
           }
           else {
             if ( entity.animation?.name != 'walk' ) {
@@ -208,8 +216,10 @@ export class World {
         this.entities.forEach( other => {
           if ( entity != other && other.type == 'monster' ) {
             if ( vec2.distance( entity.pos, other.pos ) < entity.radius + other.radius ) {
-              other.life -= PistolBulletDamage;
               entity.life = 0;
+
+              other.life -= PistolBulletDamage;
+              other.flashIntensity = 1;
             }
           }
         } );

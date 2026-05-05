@@ -6,6 +6,31 @@ DONE: Avoid big moves with hand
   - Incorporate turn dist as well as dist from player
     - Simply multiplying distance by deltaAngle seems to work pretty well
 
+DONE: Multiple hands
+  - I don't want them to overlap
+    - Mostly for visual reasons
+    - In theory, focusing firepower on a boss is nice, but it's confusing if they're all in the same spot
+  - I want the first hand that gets there to hold its ground
+    - I don't want the two hands to repel each other so that neither has an accurate shot
+  - Should they 'divvy up' the targets?
+    - They would need to know which enemy was being targetted by each weapon
+    - Seems like this is closest to what I want
+    - I don't necessarily mind temporary overlap, but I generally want them attacking different targets
+    - As soon as they are near each other, they'll behave the same way without some coordination
+  - Should they have sectors they stay in?
+  - They could just maintain a distance from existing hands
+    - Want to do this without repelling
+      - Can hands cross over?
+
+  - What if we sort a list of targets by distance from player
+    - then each hand picks the one they are closest to angle wise?
+      - the first hands get better picks, the later hands might have to move more
+    - also saves us from procesing the list N times, sort of
+      - though pays the cost of making an array? and sorting. don't worry about perf for now, though.
+  - Or keep doing what we're doing, but keep track of who we are already targeting so we can skip them
+    - This works for now
+
+
 5/4:
 
 DONE: Bites damage player

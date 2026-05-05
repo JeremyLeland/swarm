@@ -32,6 +32,7 @@ export class World {
 
   playerSpawnTimer = 0;
 
+  #targets = new Set();
 
   newPlayer( vals ) {
     return Object.assign( {
@@ -42,7 +43,7 @@ export class World {
       life: PlayerMaxLife,
       weapons: [
         { type: 'pistol', angle: 0 },
-        // { type: 'pistol', angle: 3 },
+        { type: 'pistol', angle: 3 },
       ],
     }, vals );
   }
@@ -104,6 +105,8 @@ export class World {
       //
       // Player Weapons
       //
+      this.#targets.clear();  // keep track of targets chosen so weapons get different ones
+
       player.weapons.forEach( weapon => {
         weapon.delay ??= 0;
         if ( weapon.delay > 0 ) {
@@ -112,7 +115,7 @@ export class World {
 
         let target, targetAngle, targetScore = Infinity;
         this.entities.forEach( other => {
-          if ( other.type == 'monster' ) {
+          if ( other.type === 'monster' && !this.#targets.has( other ) ) {
             const toOther = vec2.subtract( [], other.pos, player.pos );
             const dist = vec2.length( toOther ) - player.radius - other.radius;
             const angle = Math.atan2( toOther[ 1 ], toOther[ 0 ] );
@@ -131,6 +134,8 @@ export class World {
         } );
 
         if ( target ) {
+          this.#targets.add( target );   // save target so future weapons can skip it
+
           const handDist = Angle.deltaAngle( weapon.angle, targetAngle );
           weapon.angle += Math.tanh( 10 * handDist ) * PlayerHandSpeed * dt;
 

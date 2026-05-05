@@ -9,8 +9,8 @@ import * as Entities from '../src/Entities.js';
 import { MapSize, World } from '../src/World.js';
 
 
-const EnemyMinSpawnTime = 1000;
-const EnemyMaxSpawnTime = 2000;
+const EnemyMinSpawnTime = 500;
+const EnemyMaxSpawnTime = 1000;
 
 let enemySpawnTimer = EnemyMinSpawnTime;
 

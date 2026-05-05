@@ -41,7 +41,8 @@ export class World {
       facing: 0,
       life: PlayerMaxLife,
       weapons: [
-        { type: 'pistol', angle: 0, delay: 0 },
+        { type: 'pistol', angle: 0 },
+        // { type: 'pistol', angle: 3 },
       ],
     }, vals );
   }
@@ -104,6 +105,7 @@ export class World {
       // Player Weapons
       //
       player.weapons.forEach( weapon => {
+        weapon.delay ??= 0;
         if ( weapon.delay > 0 ) {
           weapon.delay -= dt;
         }

@@ -106,15 +106,18 @@ export function draw( ctx, entity ) {
     ctx.restore();
 
     entity.weapons?.forEach( weapon => {
-      ctx.rotate( weapon.angle );
-      ctx.translate( PlayerInfo.Hand.Distance, 0 );
+      ctx.save(); {
+        ctx.rotate( weapon.angle );
+        ctx.translate( PlayerInfo.Hand.Distance, 0 );
 
-      ctx.scale( PlayerInfo.Hand.Radius, PlayerInfo.Hand.Radius );
+        ctx.scale( PlayerInfo.Hand.Radius, PlayerInfo.Hand.Radius );
 
-      ctx.fillStyle = '#c7b299';
-      ctx.beginPath();
-      ctx.arc( 0, 0, 0.5, 0, Math.PI * 2 );
-      ctx.fill();
+        ctx.fillStyle = '#c7b299';
+        ctx.beginPath();
+        ctx.arc( 0, 0, 0.5, 0, Math.PI * 2 );
+        ctx.fill();
+      }
+      ctx.restore();
     } );
   }
   ctx.restore();

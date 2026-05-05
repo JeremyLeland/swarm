@@ -108,18 +108,22 @@ export class World {
           weapon.delay -= dt;
         }
 
-        let target, targetDist = Infinity, targetAngle;
+        let target, targetAngle, targetScore = Infinity;
         this.entities.forEach( other => {
           if ( other.type == 'monster' ) {
             const toOther = vec2.subtract( [], other.pos, player.pos );
             const dist = vec2.length( toOther ) - player.radius - other.radius;
             const angle = Math.atan2( toOther[ 1 ], toOther[ 0 ] );
 
+            const angleDist = Math.abs( Angle.deltaAngle( weapon.angle, angle ) );
+
+            const score = dist * angleDist;
+
             // TODO: Account for angle so we aren't making as dramatic a switch?
-            if ( dist < targetDist ) {
+            if ( score < targetScore ) {
               target = other;
-              targetDist = dist;
               targetAngle = angle;
+              targetScore = score;
             }
           }
         } );
@@ -129,7 +133,7 @@ export class World {
           weapon.angle += Math.tanh( 10 * handDist ) * PlayerHandSpeed * dt;
 
           if ( Math.abs( Angle.deltaAngle( weapon.angle, targetAngle ) ) < PlayerTargetDeltaAngle &&
-                targetDist < PistolRange &&
+                targetScore < PistolRange &&
                 weapon.delay <= 0 ) {
 
             const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];

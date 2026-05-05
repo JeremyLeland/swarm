@@ -2,8 +2,9 @@
 
 DONE: Respawn player after 3 seconds
 
-Avoid big moves with hand
+DONE: Avoid big moves with hand
   - Incorporate turn dist as well as dist from player
+    - Simply multiplying distance by deltaAngle seems to work pretty well
 
 5/4:
 

@@ -9,14 +9,12 @@ import * as Entities from '../src/Entities.js';
 import { MapSize, World } from '../src/World.js';
 
 
-const MinSpawnTime = 1000;
-const MaxSpawnTime = 2000;
+const EnemyMinSpawnTime = 1000;
+const EnemyMaxSpawnTime = 2000;
 
-let spawnTimer = MinSpawnTime;
+let enemySpawnTimer = EnemyMinSpawnTime;
 
 const world = new World();
-
-world.entities.push( world.newPlayer() );
 
 world.entities.push(
   world.newMonster( { pos: [ -1, 1 ], radius: 0.3, facing: 1, life: 1 } ),
@@ -39,11 +37,11 @@ const input = {
 
 gameCanvas.update = ( dt ) => {
 
-  if ( spawnTimer > 0 ) {
-    spawnTimer -= dt;
+  if ( enemySpawnTimer > 0 ) {
+    enemySpawnTimer -= dt;
   }
   else {
-    spawnTimer += MinSpawnTime + Math.random() * ( MaxSpawnTime - MinSpawnTime );
+    enemySpawnTimer += EnemyMinSpawnTime + Math.random() * ( EnemyMaxSpawnTime - EnemyMinSpawnTime );
 
     const dist = MapSize + Math.random() * 4;
     const angle = Math.random() * Math.PI * 2;

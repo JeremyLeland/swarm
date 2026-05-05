@@ -1,3 +1,10 @@
+5/5:
+
+DONE: Respawn player after 3 seconds
+
+Avoid big moves with hand
+  - Incorporate turn dist as well as dist from player
+
 5/4:
 
 DONE: Bites damage player
@@ -16,6 +23,15 @@ DONE: Adding some UI for player health
 What do monsters do if no player?
   - For now, nothing (and don't crash)
   - Later, maybe wander around?
+
+Hand keeps going back and forth between closest enemies, but takes long way to do it
+  - Need to pick one and commit
+    - And need to take turn distance into account somehow
+      - So we'll target an enemy that's further away if it's less of a hand turn
+
+Add respawning player for now
+  - Easier to test if I can keep going
+  - Can limit lives later if it makes game interesting
 
 4/30:
 

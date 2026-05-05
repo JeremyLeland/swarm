@@ -10,6 +10,7 @@ const PlayerHandSpeed = 0.003;
 const PlayerTargetDeltaAngle = 0.1;
 
 const PlayerMaxLife = 10;
+const PlayerSpawnTime = 3000;
 
 const FlashDecayRate = 0.005;
 
@@ -27,11 +28,10 @@ const UIBarHeight = 0.2;
 const UIBarLineWidth = 0.01;
 
 export class World {
-  // player;
-  // enemies = [];
-  // bullets = [];
-
   entities = [];
+
+  playerSpawnTimer = 0;
+
 
   newPlayer( vals ) {
     return Object.assign( {
@@ -61,7 +61,17 @@ export class World {
 
     const player = this.entities.find( e => e.type === 'player' );
 
-    if ( player ) {
+    if ( !player ) {
+      if ( this.playerSpawnTimer > 0 ) {
+        this.playerSpawnTimer -= dt;
+      }
+      else {
+        this.playerSpawnTimer = PlayerSpawnTime;
+
+        this.entities.push( this.newPlayer() );
+      }
+    }
+    else {
       //
       // Player Movement
       //

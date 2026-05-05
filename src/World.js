@@ -3,6 +3,8 @@ import * as Entities from './Entities.js';
 
 import { vec2 } from '../lib/gl-matrix.js';
 
+export const MapSize = 5;
+
 const PlayerSpeed = 0.003;
 const PlayerHandSpeed = 0.003;
 const PlayerTargetDeltaAngle = 0.1;
@@ -203,6 +205,10 @@ export class World {
             }
           }
         }
+        else {
+          // TODO: Remove if we add wandering later
+          delete entity.animation;
+        }
       }
 
       //
@@ -214,8 +220,8 @@ export class World {
         // }
 
         // Remove out-of-bounds bullets
-        if ( entity.pos[ 0 ] < -3 || entity.pos[ 0 ] > 3 ||
-             entity.pos[ 1 ] < -3 || entity.pos[ 1 ] > 3 ) {
+        if ( entity.pos[ 0 ] < -MapSize || entity.pos[ 0 ] > MapSize ||
+             entity.pos[ 1 ] < -MapSize || entity.pos[ 1 ] > MapSize ) {
           entity.life = 0;
         }
 
@@ -245,7 +251,7 @@ export class World {
     const player = this.entities.find( e => e.type === 'player' );
 
     ctx.save(); {
-      ctx.translate( -2.9, -2.9 );
+      ctx.translate( -MapSize + 0.1, -MapSize + 0.1 );
 
       if ( player ) {
         ctx.fillStyle = 'red';

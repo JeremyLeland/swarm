@@ -6,17 +6,13 @@ import * as Grid from '../src/common/Grid.js';
 import { vec2 } from '../lib/gl-matrix.js';
 
 import * as Entities from '../src/Entities.js';
-import { World } from '../src/World.js';
-
-const PlayerSpeed = 0.003;
-const PlayerHandSpeed = 0.003;
-const PlayerTargetDeltaAngle = 0.1;
+import { MapSize, World } from '../src/World.js';
 
 
-const PistolDelay = 500;
-const PistolRange = 2;
-const PistolBulletSpeed = 0.01;
-const PistolBulletDamage = 1;
+const MinSpawnTime = 1000;
+const MaxSpawnTime = 2000;
+
+let spawnTimer = MinSpawnTime;
 
 const world = new World();
 
@@ -31,7 +27,7 @@ world.entities.push(
 
 
 const gameCanvas = new GameCanvas();
-gameCanvas.bounds = [ -3, -3, 3, 3 ];
+gameCanvas.bounds = [ -MapSize, -MapSize, MapSize, MapSize ];
 gameCanvas.backgroundColor = '#123';
 
 const input = {
@@ -42,6 +38,28 @@ const input = {
 };
 
 gameCanvas.update = ( dt ) => {
+
+  if ( spawnTimer > 0 ) {
+    spawnTimer -= dt;
+  }
+  else {
+    spawnTimer += MinSpawnTime + Math.random() * ( MaxSpawnTime - MinSpawnTime );
+
+    const dist = MapSize + Math.random() * 4;
+    const angle = Math.random() * Math.PI * 2;
+
+    // TODO: Weight more heavily toward smaller monsters
+    const size = Math.random();
+
+    world.entities.push(
+      world.newMonster( {
+        pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
+        radius: 0.3 + size * 0.3,
+        life: Math.ceil( size * 4 ),
+      } )
+    );
+  }
+
   world.update( dt, input );
 }
 

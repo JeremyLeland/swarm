@@ -17,10 +17,10 @@ let enemySpawnTimer = EnemyMinSpawnTime;
 const world = new World();
 
 world.entities.push(
-  world.newMonster( { pos: [ -1, 1 ], radius: 0.3, facing: 1, life: 1 } ),
-  world.newMonster( { pos: [ -2, 2 ], radius: 0.4, facing: 0, life: 2 } ),
-  world.newMonster( { pos: [  2, 1 ], radius: 0.5, facing: 1, life: 3 } ),
-  world.newMonster( { pos: [  1, 2 ], radius: 0.6, facing: 0, life: 4 } ),
+  world.newMonster( { type: 'monster_green',  pos: [ -1, 1 ], radius: 0.3, facing: 1, life: 1 } ),
+  world.newMonster( { type: 'monster_blue',   pos: [ -2, 2 ], radius: 0.4, facing: 0, life: 2 } ),
+  world.newMonster( { type: 'monster_yellow', pos: [  2, 1 ], radius: 0.5, facing: 1, life: 3 } ),
+  world.newMonster( { type: 'monster_green',  pos: [  1, 2 ], radius: 0.6, facing: 0, life: 4 } ),
 );
 
 
@@ -51,6 +51,7 @@ gameCanvas.update = ( dt ) => {
 
     world.entities.push(
       world.newMonster( {
+        type: randomFrom( Entities.MonsterTypes ),
         pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
         radius: 0.3 + size * 0.3,
         life: Math.ceil( size * 4 ),
@@ -86,3 +87,7 @@ const keyUpAction = {
 
 document.addEventListener( 'keydown', e => keyDownAction[ e.key ]?.() );
 document.addEventListener( 'keyup', e => keyUpAction[ e.key ]?.() );
+
+function randomFrom( array ) {
+  return array[ Math.floor( Math.random() * array.length ) ];
+}

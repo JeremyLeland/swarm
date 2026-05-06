@@ -1,6 +1,8 @@
 const images = await loadImages( {
   'player': './images/marshmallow_earphone-01.png',
-  'monster': './images/green1.png',
+  'monster_green': './images/green1.png',
+  'monster_blue': './images/blue.png',
+  'monster_yellow': './images/spikey.png',
   'bullet': './images/bullet.png',
 } );
 
@@ -52,6 +54,12 @@ export const PlayerInfo = {
     Distance: 0.75,
   },
 }
+
+export const MonsterTypes = [
+  'monster_green',
+  'monster_blue',
+  'monster_yellow',
+];
 
 export function draw( ctx, entity ) {
   const image = images[ entity.type ];     //images[ entity.type ];

@@ -37,6 +37,7 @@ export class World {
   newPlayer( vals ) {
     return Object.assign( {
       type: 'player',
+      group: 'players',
       pos: [ 0, 0 ],
       radius: 0.5,
       facing: 0,
@@ -50,7 +51,7 @@ export class World {
 
   newMonster( vals ) {
     return Object.assign( {
-      type: 'monster',
+      group: 'monsters',
       pos: [ 0, 0 ],
       radius: 0.5,
       facing: 0,
@@ -61,6 +62,7 @@ export class World {
 
   update( dt, input ) {
 
+    // TODO: Handle multiple players?
     const player = this.entities.find( e => e.type === 'player' );
 
     if ( !player ) {
@@ -115,7 +117,7 @@ export class World {
 
         let target, targetAngle, targetScore = Infinity;
         this.entities.forEach( other => {
-          if ( other.type === 'monster' && !this.#targets.has( other ) ) {
+          if ( other.group === 'monsters' && !this.#targets.has( other ) ) {
             const toOther = vec2.subtract( [], other.pos, player.pos );
             const dist = vec2.length( toOther ) - player.radius - other.radius;
             const angle = Math.atan2( toOther[ 1 ], toOther[ 0 ] );
@@ -147,7 +149,15 @@ export class World {
             const pos = vec2.scaleAndAdd( [], player.pos, dir, Entities.PlayerInfo.Hand.Distance );
             const vel = vec2.scale( [], dir, PistolBulletSpeed );
 
-            this.entities.push( { type: 'bullet', pos: pos, vel: vel, angle: weapon.angle, radius: 0.1, life: 1 } );
+            this.entities.push( {
+              type: 'bullet',
+              group: 'bullets',
+              pos: pos,
+              vel: vel,
+              angle: weapon.angle,
+              radius: 0.1,
+              life: 1
+            } );
 
             weapon.delay += PistolDelay;
           }
@@ -167,7 +177,7 @@ export class World {
       //
       // Monsters
       //
-      if ( entity.type === 'monster' ) {
+      if ( entity.group === 'monsters' ) {
         if ( entity.delay > 0 ) {
           entity.delay -= dt;
         }
@@ -182,7 +192,7 @@ export class World {
           entity.facing = moveVector[ 0 ] <= 0 ? Entities.Facing.Left : Entities.Facing.Right;
 
           this.entities.forEach( other => {
-            if ( entity != other && ( other.type === 'player' || other.type === 'monster' ) ) {
+            if ( entity != other && ( other.group === 'players' || other.group === 'monsters' ) ) {
               // Opposite direction so we avoid other
               const toOther = vec2.subtract( [], entity.pos, other.pos );
               const distToOther = Math.max( 1e-6, vec2.len( toOther ) - entity.radius - other.radius );
@@ -235,7 +245,7 @@ export class World {
       //
       // Bullets
       //
-      else if ( entity.type == 'bullet' ) {
+      else if ( entity.group == 'bullets' ) {
         // if ( entity.vel ) {
           vec2.scaleAndAdd( entity.pos, entity.pos, entity.vel, dt );
         // }
@@ -249,7 +259,7 @@ export class World {
         // Check for collision against monsters
         // TODO: Sweep collision test to find hit time (and make partices there?)
         this.entities.forEach( other => {
-          if ( entity != other && other.type == 'monster' ) {
+          if ( entity != other && other.group == 'monsters' ) {
             if ( vec2.distance( entity.pos, other.pos ) < entity.radius + other.radius ) {
               entity.life = 0;
 
@@ -269,6 +279,8 @@ export class World {
     this.entities.forEach( entity => Entities.draw( ctx, entity ) );
 
     // UI
+    // TODO: Base on edge of screen instead of world coords? (so not affected by zoom, etc)
+    //       Maybe move this out of World, too
     const player = this.entities.find( e => e.type === 'player' );
 
     ctx.save(); {

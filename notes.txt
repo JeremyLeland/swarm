@@ -1,3 +1,9 @@
+5/6:
+
+DONE: Multiple monster types
+  - How about "type" is the specific "monster1", "monster2", etc, and "group" is behavior category
+    - So "type" is "monster_green" and group is "monsters"
+
 5/5:
 
 DONE: Respawn player after 3 seconds
@@ -30,6 +36,18 @@ DONE: Multiple hands
   - Or keep doing what we're doing, but keep track of who we are already targeting so we can skip them
     - This works for now
 
+Powerups?
+  - Health, at least, so we can keep going
+    - Stay forever, or time limited?
+      - Kind of like time limited to keep us moving (and not clutter up screen too much)
+    - Can't find a sprite I like on OGA, maybe just a solid white circle with a red cross for now
+  - Extra weapons?
+  - Upgrades vs temporary powerups?
+
+Multiple monster types?
+  - Distinguish between behavior type ('monster') and image variant ('blue')
+    - Maybe 'type' and 'variant'?
+    - How do we know what sprite name to use? Maybe: variant ?? type
 
 5/4:
 

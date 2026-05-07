@@ -4,6 +4,13 @@ DONE: Multiple monster types
   - How about "type" is the specific "monster1", "monster2", etc, and "group" is behavior category
     - So "type" is "monster_green" and group is "monsters"
 
+DONE: Tweak monster sizes so there are more smaller ones, fewer big ones
+  - Make bigger monsters move slower
+    - And make them less likely to get out of way of smaller monsters?
+      - Hard to tell with the numbers we currently have on screen
+      - Need to make a bigger swarm to test
+
+
 5/5:
 
 DONE: Respawn player after 3 seconds

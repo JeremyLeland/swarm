@@ -9,20 +9,7 @@ import * as Entities from '../src/Entities.js';
 import { MapSize, World } from '../src/World.js';
 
 
-const EnemyMinSpawnTime = 500;
-const EnemyMaxSpawnTime = 1000;
-
-let enemySpawnTimer = EnemyMinSpawnTime;
-
 const world = new World();
-
-world.entities.push(
-  world.newMonster( { type: 'monster_green',  pos: [ -1, 1 ], radius: 0.3, facing: 1, life: 1 } ),
-  world.newMonster( { type: 'monster_blue',   pos: [ -2, 2 ], radius: 0.4, facing: 0, life: 2 } ),
-  world.newMonster( { type: 'monster_yellow', pos: [  2, 1 ], radius: 0.5, facing: 1, life: 3 } ),
-  world.newMonster( { type: 'monster_green',  pos: [  1, 2 ], radius: 0.6, facing: 0, life: 4 } ),
-);
-
 
 const gameCanvas = new GameCanvas();
 gameCanvas.bounds = [ -MapSize, -MapSize, MapSize, MapSize ];
@@ -36,29 +23,6 @@ const input = {
 };
 
 gameCanvas.update = ( dt ) => {
-
-  if ( enemySpawnTimer > 0 ) {
-    enemySpawnTimer -= dt;
-  }
-  else {
-    enemySpawnTimer += EnemyMinSpawnTime + Math.random() * ( EnemyMaxSpawnTime - EnemyMinSpawnTime );
-
-    const dist = MapSize + Math.random() * 4;
-    const angle = Math.random() * Math.PI * 2;
-
-    // TODO: Weight more heavily toward smaller monsters
-    const size = Math.random();
-
-    world.entities.push(
-      world.newMonster( {
-        type: randomFrom( Entities.MonsterTypes ),
-        pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
-        radius: 0.3 + size * 0.3,
-        life: Math.ceil( size * 4 ),
-      } )
-    );
-  }
-
   world.update( dt, input );
 }
 
@@ -87,7 +51,3 @@ const keyUpAction = {
 
 document.addEventListener( 'keydown', e => keyDownAction[ e.key ]?.() );
 document.addEventListener( 'keyup', e => keyUpAction[ e.key ]?.() );
-
-function randomFrom( array ) {
-  return array[ Math.floor( Math.random() * array.length ) ];
-}

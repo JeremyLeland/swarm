@@ -88,12 +88,14 @@ export function draw( ctx, entity ) {
       // Animations
       //
       if ( entity.animation?.name == 'walk' ) {
-        const walkOffset = 0.1 * Math.sin( entity.animation.time / 100 );
+        // TODO: Scale based on size instead of speed?
+        const walkOffset = 0.1 * Math.sin( entity.animation.time * entity.speed * 5 );
         ctx.translate( 0, -walkOffset / 2 );
         ctx.scale( 1, 1 + walkOffset );
       }
 
       if ( entity.animation?.name == 'bite' ) {
+        // TODO: Scale based on size? (so bigger enemies bite slower)
         const biteTime = Math.min( Math.PI, entity.animation.time / 100 );
         const biteOffset = 0.5 * Math.sin( biteTime );
 

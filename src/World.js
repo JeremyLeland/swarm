@@ -19,9 +19,17 @@ const PistolRange = 2;
 const PistolBulletSpeed = 0.01;
 const PistolBulletDamage = 1;
 
+const EnemyMinSpawnTime = 300;
+const EnemyMaxSpawnTime = 1000;
+
 const EnemyBiteDist = 0.4;
 const EnemyBiteDelay = 800;
-const EnemySpeed = 0.002;
+const EnemyMinSize = 0.25;
+const EnemyMaxSize = 1;
+const EnemyMinLife = 1;
+const EnemyMaxLife = 4;
+const EnemyMinSpeed = 0.0005;
+const EnemyMaxSpeed = 0.002;
 
 const UIBarWidth = 2;
 const UIBarHeight = 0.2;
@@ -31,6 +39,7 @@ export class World {
   entities = [];
 
   playerSpawnTimer = 0;
+  enemySpawnTimer = EnemyMinSpawnTime;
 
   #targets = new Set();
 
@@ -42,6 +51,7 @@ export class World {
       radius: 0.5,
       facing: 0,
       life: PlayerMaxLife,
+      speed: PlayerSpeed,
       weapons: [
         { type: 'pistol', angle: 0 },
         { type: 'pistol', angle: 3 },
@@ -57,10 +67,35 @@ export class World {
       facing: 0,
       delay: 0,
       life: 1,
+      speed: EnemyMinSpeed,
     }, vals );
   }
 
   update( dt, input ) {
+
+    // Spawning more enemies (for now, just hardcode this into world)
+    if ( this.enemySpawnTimer > 0 ) {
+      this.enemySpawnTimer -= dt;
+    }
+    else {
+      this.enemySpawnTimer += EnemyMinSpawnTime + Math.random() * ( EnemyMaxSpawnTime - EnemyMinSpawnTime );
+
+      const dist = MapSize + Math.random() * 4;
+      const angle = Math.random() * Math.PI * 2;
+
+      // Weight more heavily toward smaller monsters
+      const size = Math.random() ** 3;
+
+      this.entities.push(
+        this.newMonster( {
+          type: randomFrom( Entities.MonsterTypes ),
+          pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
+          radius: EnemyMinSize  + size * ( EnemyMaxSize  - EnemyMinSize  ),
+          life:   EnemyMinLife  + size * ( EnemyMaxLife  - EnemyMinLife  ),
+          speed:  EnemyMaxSpeed - size * ( EnemyMaxSpeed - EnemyMinSpeed ),
+        } )
+      );
+    }
 
     // TODO: Handle multiple players?
     const player = this.entities.find( e => e.type === 'player' );
@@ -201,9 +236,6 @@ export class World {
               // This function is infinite at f(0) and close to 0 at f(1)
               const weight = 1 / Math.tanh( 3 * distToOther ) - 1;
 
-              // TODO: Incorporate radius somehow, so bigger enemies push smaller ones around more?
-
-              // vec2.scaleAndAdd( avoid, avoid, toOther, weight );
               vec2.scaleAndAdd( moveVector, moveVector, toOther, weight );
             }
           } );
@@ -215,7 +247,7 @@ export class World {
             moveVector[ 1 ] /= moveLength;
           }
 
-          const moveDist = Math.tanh( 10 * distanceFrom ) * EnemySpeed * dt;
+          const moveDist = Math.tanh( 10 * distanceFrom ) * entity.speed * dt;
           vec2.scaleAndAdd( entity.pos, entity.pos, moveVector, moveDist );
 
           // Attack (if in range)
@@ -225,7 +257,7 @@ export class World {
 
             console.log( 'Bite!' );
 
-            // TODO: Do actual bite (damage player, etc)
+            // TODO: Scale bite based on monster size. Maybe have their damage as a entity property?
             player.life -= 1;
             player.flashIntensity = 1;
           }
@@ -297,4 +329,8 @@ export class World {
     }
     ctx.restore();
   }
+}
+
+function randomFrom( array ) {
+  return array[ Math.floor( Math.random() * array.length ) ];
 }

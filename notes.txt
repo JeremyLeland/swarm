@@ -1,3 +1,13 @@
+5/7:
+
+DONE: Health powerup
+
+Housekeeping
+  - Combine timers and decrement them in one place?
+    - How would I know which values to set them at, or when to reset them?
+    - Maybe just leave as is for now
+  - Move drawing from Entity to World
+
 5/6:
 
 DONE: Multiple monster types
@@ -9,6 +19,9 @@ DONE: Tweak monster sizes so there are more smaller ones, fewer big ones
     - And make them less likely to get out of way of smaller monsters?
       - Hard to tell with the numbers we currently have on screen
       - Need to make a bigger swarm to test
+
+Health powerup
+  - Can either randomly spawn on their own or be dropped by enemies
 
 
 5/5:

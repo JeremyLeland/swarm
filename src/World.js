@@ -19,6 +19,10 @@ const PistolRange = 2;
 const PistolBulletSpeed = 0.01;
 const PistolBulletDamage = 1;
 
+const PowerupHealthBoost = 1;
+const PowerupMinSpawnTime = 5000;
+const PowerupMaxSpawnTime = 8000;
+
 const EnemyMinSpawnTime = 300;
 const EnemyMaxSpawnTime = 1000;
 
@@ -40,6 +44,7 @@ export class World {
 
   playerSpawnTimer = 0;
   enemySpawnTimer = EnemyMinSpawnTime;
+  powerupSpawnTimer = PowerupMinSpawnTime;
 
   #targets = new Set();
 
@@ -71,6 +76,15 @@ export class World {
     }, vals );
   }
 
+  newPowerup( vals ) {
+    return Object.assign( {
+      group: 'powerups',
+      pos: [ 0, 0 ],
+      radius: 0.25,
+      life: 1,
+    }, vals );
+  }
+
   update( dt, input ) {
 
     // Spawning more enemies (for now, just hardcode this into world)
@@ -93,6 +107,25 @@ export class World {
           radius: EnemyMinSize  + size * ( EnemyMaxSize  - EnemyMinSize  ),
           life:   EnemyMinLife  + size * ( EnemyMaxLife  - EnemyMinLife  ),
           speed:  EnemyMaxSpeed - size * ( EnemyMaxSpeed - EnemyMinSpeed ),
+        } )
+      );
+    }
+
+    // Spawning powerups
+    if ( this.powerupSpawnTimer > 0 ) {
+      this.powerupSpawnTimer -= dt;
+    }
+    else {
+      this.powerupSpawnTimer += PowerupMinSpawnTime + Math.random() * ( PowerupMaxSpawnTime - PowerupMinSpawnTime );
+
+      const dist = Math.random() * MapSize;
+      const angle = Math.random() * Math.PI * 2;
+
+      this.entities.push(
+        this.newPowerup( {
+          type: randomFrom( Entities.PowerupTypes ),
+          pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
+          // TODO: random amount of life? decay life in update so they stick around temporarily
         } )
       );
     }
@@ -277,7 +310,7 @@ export class World {
       //
       // Bullets
       //
-      else if ( entity.group == 'bullets' ) {
+      else if ( entity.group === 'bullets' ) {
         // if ( entity.vel ) {
           vec2.scaleAndAdd( entity.pos, entity.pos, entity.vel, dt );
         // }
@@ -300,6 +333,19 @@ export class World {
             }
           }
         } );
+      }
+
+      //
+      // Powerups
+      //
+      else if ( entity.group === 'powerups' ) {
+        if ( player && vec2.distance( entity.pos, player.pos ) < entity.radius + player.radius ) {
+          entity.life = 0;
+
+          if ( entity.type === 'health' ) {
+            player.life = Math.min( PlayerMaxLife, player.life + PowerupHealthBoost );
+          }
+        }
       }
     } );
 

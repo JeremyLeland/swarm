@@ -6,6 +6,29 @@ const images = await loadImages( {
   'bullet': './images/bullet.png',
 } );
 
+images[ 'health' ] = getHealthImage();
+
+function getHealthImage() {
+  const canvas = new OffscreenCanvas( 100, 100 );
+  const ctx = canvas.getContext( '2d' );
+
+  ctx.translate( 50, 50 );
+
+  ctx.beginPath();
+  ctx.arc( 0, 0, 50, 0, Math.PI * 2 );
+
+  ctx.fillStyle = 'gray';
+  ctx.fill();
+
+  const WIDTH = 15, HEIGHT = 35;
+
+  ctx.fillStyle = 'red';
+  ctx.fillRect( -WIDTH, -HEIGHT, WIDTH * 2, HEIGHT * 2 );
+  ctx.fillRect( -HEIGHT, -WIDTH, HEIGHT * 2, WIDTH * 2 );
+
+  return canvas;
+}
+
 const masks = makeMasks( images );
 
 async function loadImages( sourceMap ) {
@@ -61,8 +84,14 @@ export const MonsterTypes = [
   'monster_yellow',
 ];
 
+export const PowerupTypes = [
+  'health',
+];
+
+// TODO: Move this to World, just put it all in one place
+
 export function draw( ctx, entity ) {
-  const image = images[ entity.type ];     //images[ entity.type ];
+  const image = images[ entity.type ];
 
   ctx.save(); {
     ctx.translate( ...entity.pos );

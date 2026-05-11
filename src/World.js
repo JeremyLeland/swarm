@@ -400,7 +400,9 @@ export class World {
   }
 
   draw( ctx ) {
-    // TODO: Should the entities draw code just go here, then?
+
+    ctx.drawImage( Entities.images.background, -MapSize * 2, -MapSize * 2, MapSize * 4, MapSize * 4 );
+
     this.entities.forEach( entity => {
       const image = Entities.images[ entity.type ];
 

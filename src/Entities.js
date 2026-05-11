@@ -29,6 +29,29 @@ function getHealthImage() {
   return canvas;
 }
 
+images[ 'background' ] = getBackgroundImage();
+
+function getBackgroundImage() {
+  const canvas = new OffscreenCanvas( 2000, 2000 );
+  const ctx = canvas.getContext( '2d' );
+
+  for ( let i = 0; i < 3000; i ++ ) {
+    const size = Math.random();
+
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const r = size * canvas.height / 12;
+
+    ctx.beginPath();
+    ctx.arc( x, y, r, 0, Math.PI * 2 );
+    ctx.fillStyle = '#333';
+    ctx.globalAlpha = 0.1 - 0.1 * size;
+    ctx.fill();
+  }
+
+  return canvas;
+}
+
 export const masks = makeMasks( images );
 
 async function loadImages( sourceMap ) {

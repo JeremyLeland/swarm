@@ -13,7 +13,7 @@ const world = new World();
 
 const gameCanvas = new GameCanvas();
 gameCanvas.bounds = [ -MapSize, -MapSize, MapSize, MapSize ];
-gameCanvas.backgroundColor = '#123';
+gameCanvas.backgroundColor = '#321';
 
 const input = {
   left:   false,
@@ -28,7 +28,7 @@ gameCanvas.update = ( dt ) => {
 
 gameCanvas.draw = ( ctx ) => {
   world.draw( ctx );
-  Grid.draw( ctx, gameCanvas.bounds );
+  // Grid.draw( ctx, gameCanvas.bounds );
 }
 
 gameCanvas.start();

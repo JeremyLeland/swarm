@@ -27,7 +27,7 @@ gameCanvas.draw = ( ctx ) => {
 
     ctx.beginPath();
     ctx.arc( x, y, r, 0, Math.PI * 2 );
-    ctx.fillStyle = '#432';
+    ctx.fillStyle = '#111';
     ctx.globalAlpha = 0.1 - 0.1 * size;
     ctx.fill();
   }

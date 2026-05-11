@@ -1,6 +1,6 @@
 5/11:
 
-Animations for spawn and die
+DONE: Animations for spawn and die
   - Scale up from zero to spawn
   - Scale down to zero to die
   - Keeps it simple for now

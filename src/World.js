@@ -16,6 +16,7 @@ const PlayerSpawnTime = 3000;
 
 const FlashDecayRate = 0.005;
 const SpawnAnimationTime = 500;
+const DieAnimationTime = 500;
 
 const PistolDelay = 500;
 const PistolRange = 2;
@@ -222,7 +223,7 @@ export class World {
 
           let target, targetAngle, targetScore = Infinity;
           this.entities.forEach( other => {
-            if ( other.group === 'monsters' && !this.#targets.has( other ) ) {
+            if ( other.group === 'monsters' && other.life > 0 && !this.#targets.has( other ) ) {
               const toOther = vec2.subtract( [], other.pos, player.pos );
               const dist = vec2.length( toOther ) - player.radius - other.radius;
               const angle = Math.atan2( toOther[ 1 ], toOther[ 0 ] );
@@ -288,7 +289,7 @@ export class World {
           entity.delay -= dt;
         }
         // TODO: Wander around if no player
-        else if ( player ) {
+        else if ( player?.life > 0 ) {
           // Move
           const moveVector = vec2.subtract( [], player.pos, entity.pos );
           const distanceFrom = vec2.len( moveVector );
@@ -326,15 +327,17 @@ export class World {
             entity.animation = { name: 'bite', time: 0 };
             entity.delay += EnemyBiteDelay;
 
-            console.log( 'Bite!' );
-
             // TODO: Scale bite based on monster size. Maybe have their damage as a entity property?
             player.life -= 1;
             player.flashIntensity = 1;
+
+            if ( player.life <= 0 ) {
+              player.animation = { name: 'die', time: 0 };
+              player.delay = DieAnimationTime;
+            }
           }
           else {
             if ( entity.animation?.name != 'walk' ) {
-              console.log( 'Walk!' );
               entity.animation = { name: 'walk', time: 0 };
             }
           }
@@ -362,12 +365,17 @@ export class World {
         // Check for collision against monsters
         // TODO: Sweep collision test to find hit time (and make partices there?)
         this.entities.forEach( other => {
-          if ( entity != other && other.group == 'monsters' ) {
+          if ( entity != other && other.group === 'monsters' && other.life > 0 ) {
             if ( vec2.distance( entity.pos, other.pos ) < entity.radius + other.radius ) {
               entity.life = 0;
 
               other.life -= PistolBulletDamage;
               other.flashIntensity = 1;
+
+              if ( other.life <= 0 ) {
+                other.animation = { name: 'die', time: 0 };
+                other.delay = DieAnimationTime;
+              }
             }
           }
         } );
@@ -387,7 +395,8 @@ export class World {
       }
     } );
 
-    this.entities = this.entities.filter( e => e.life > 0 );
+    // Remove entities with no life and no delay (delay allows time for die animation)
+    this.entities = this.entities.filter( e => e.life > 0 || e.delay > 0 );
   }
 
   draw( ctx ) {
@@ -413,6 +422,12 @@ export class World {
           const spawnScale = Math.sin( spawnPerc * Math.PI / 2 );
 
           ctx.scale( spawnScale, spawnScale );
+        }
+        else if ( entity.animation?.name == 'die' ) {
+          const diePerc = Math.min( 1, entity.animation.time / DieAnimationTime );
+          const dieScale = 1 - Math.sin( diePerc * Math.PI / 2 );
+
+          ctx.scale( dieScale, dieScale );
         }
 
         // Facing and animations should only apply to main entity, not weapons

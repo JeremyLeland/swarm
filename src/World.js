@@ -15,6 +15,7 @@ const PlayerMaxLife = 10;
 const PlayerSpawnTime = 3000;
 
 const FlashDecayRate = 0.005;
+const SpawnAnimationTime = 500;
 
 const PistolDelay = 500;
 const PistolRange = 2;
@@ -74,12 +75,17 @@ export class World {
       pos: [ 0, 0 ],
       radius: 0.5,
       facing: 0,
+      delay: SpawnAnimationTime,
       life: PlayerMaxLife,
       speed: PlayerSpeed,
       weapons: [
         { type: 'pistol', angle: 0 },
         { type: 'pistol', angle: 3 },
       ],
+      animation: {
+        name: 'spawn',
+        time: 0,
+      },
     }, vals );
   }
 
@@ -89,9 +95,13 @@ export class World {
       pos: [ 0, 0 ],
       radius: 0.5,
       facing: 0,
-      delay: 0,
+      delay: SpawnAnimationTime,
       life: 1,
       speed: EnemyMinSpeed,
+      animation: {
+        name: 'spawn',
+        time: 0,
+      },
     }, vals );
   }
 
@@ -101,6 +111,10 @@ export class World {
       pos: [ 0, 0 ],
       radius: 0.25,
       life: 1,
+      animation: {
+        name: 'spawn',
+        time: 0,
+      },
     }, vals );
   }
 
@@ -113,7 +127,7 @@ export class World {
     else {
       this.enemySpawnTimer += EnemyMinSpawnTime + Math.random() * ( EnemyMaxSpawnTime - EnemyMinSpawnTime );
 
-      const dist = MapSize + Math.random() * 4;
+      const dist = Math.random() * MapSize + 2; //MapSize + Math.random() * 4;
       const angle = Math.random() * Math.PI * 2;
 
       // Weight more heavily toward smaller monsters
@@ -163,93 +177,98 @@ export class World {
       }
     }
     else {
-      //
-      // Player Movement
-      //
-      if ( input?.left ) {
-        player.facing = Facing.Left;
-      }
-      else if ( input?.right ) {
-        player.facing = Facing.Right;
-      }
-
-      const moveVector = [
-        ( input?.left ? -1 : 0 ) + ( input?.right ? 1 : 0 ),
-        ( input?.up   ? -1 : 0 ) + ( input?.down  ? 1 : 0 ),
-      ];
-
-      if ( moveVector[ 0 ] !== 0 || moveVector[ 1 ] !== 0 ) {
-        vec2.normalize( moveVector, moveVector );
-        vec2.scaleAndAdd( player.pos, player.pos, moveVector, PlayerSpeed * dt );
-
-        if ( player.animation?.name != 'walk' ) {
-          console.log( 'Player Walk!' );
-          player.animation = { name: 'walk', time: 0 };
-        }
+      if ( player.delay > 0 ) {
+        player.delay -= dt;
       }
       else {
-        delete player.animation;
-      }
-
-      //
-      // Player Weapons
-      //
-      this.#targets.clear();  // keep track of targets chosen so weapons get different ones
-
-      player.weapons.forEach( weapon => {
-        weapon.delay ??= 0;
-        if ( weapon.delay > 0 ) {
-          weapon.delay -= dt;
+        //
+        // Player Movement
+        //
+        if ( input?.left ) {
+          player.facing = Facing.Left;
+        }
+        else if ( input?.right ) {
+          player.facing = Facing.Right;
         }
 
-        let target, targetAngle, targetScore = Infinity;
-        this.entities.forEach( other => {
-          if ( other.group === 'monsters' && !this.#targets.has( other ) ) {
-            const toOther = vec2.subtract( [], other.pos, player.pos );
-            const dist = vec2.length( toOther ) - player.radius - other.radius;
-            const angle = Math.atan2( toOther[ 1 ], toOther[ 0 ] );
+        const moveVector = [
+          ( input?.left ? -1 : 0 ) + ( input?.right ? 1 : 0 ),
+          ( input?.up   ? -1 : 0 ) + ( input?.down  ? 1 : 0 ),
+        ];
 
-            const angleDist = Math.abs( Angle.deltaAngle( weapon.angle, angle ) );
+        if ( moveVector[ 0 ] !== 0 || moveVector[ 1 ] !== 0 ) {
+          vec2.normalize( moveVector, moveVector );
+          vec2.scaleAndAdd( player.pos, player.pos, moveVector, PlayerSpeed * dt );
 
-            const score = dist * angleDist;
+          if ( player.animation?.name != 'walk' ) {
+            console.log( 'Player Walk!' );
+            player.animation = { name: 'walk', time: 0 };
+          }
+        }
+        else {
+          delete player.animation;
+        }
 
-            // TODO: Account for angle so we aren't making as dramatic a switch?
-            if ( score < targetScore ) {
-              target = other;
-              targetAngle = angle;
-              targetScore = score;
+        //
+        // Player Weapons
+        //
+        this.#targets.clear();  // keep track of targets chosen so weapons get different ones
+
+        player.weapons.forEach( weapon => {
+          weapon.delay ??= 0;
+          if ( weapon.delay > 0 ) {
+            weapon.delay -= dt;
+          }
+
+          let target, targetAngle, targetScore = Infinity;
+          this.entities.forEach( other => {
+            if ( other.group === 'monsters' && !this.#targets.has( other ) ) {
+              const toOther = vec2.subtract( [], other.pos, player.pos );
+              const dist = vec2.length( toOther ) - player.radius - other.radius;
+              const angle = Math.atan2( toOther[ 1 ], toOther[ 0 ] );
+
+              const angleDist = Math.abs( Angle.deltaAngle( weapon.angle, angle ) );
+
+              const score = dist * angleDist;
+
+              // TODO: Account for angle so we aren't making as dramatic a switch?
+              if ( score < targetScore ) {
+                target = other;
+                targetAngle = angle;
+                targetScore = score;
+              }
+            }
+          } );
+
+          if ( target ) {
+            this.#targets.add( target );   // save target so future weapons can skip it
+
+            const handDist = Angle.deltaAngle( weapon.angle, targetAngle );
+            weapon.angle += Math.tanh( 10 * handDist ) * PlayerHandSpeed * dt;
+
+            if ( Math.abs( Angle.deltaAngle( weapon.angle, targetAngle ) ) < PlayerTargetDeltaAngle &&
+                  targetScore < PistolRange &&
+                  weapon.delay <= 0 ) {
+
+              const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
+              const pos = vec2.scaleAndAdd( [], player.pos, dir, PlayerHandDistance );
+              const vel = vec2.scale( [], dir, PistolBulletSpeed );
+
+              this.entities.push( {
+                type: 'bullet',
+                group: 'bullets',
+                pos: pos,
+                vel: vel,
+                angle: weapon.angle,
+                radius: 0.1,
+                life: 1
+              } );
+
+              weapon.delay += PistolDelay;
             }
           }
         } );
-
-        if ( target ) {
-          this.#targets.add( target );   // save target so future weapons can skip it
-
-          const handDist = Angle.deltaAngle( weapon.angle, targetAngle );
-          weapon.angle += Math.tanh( 10 * handDist ) * PlayerHandSpeed * dt;
-
-          if ( Math.abs( Angle.deltaAngle( weapon.angle, targetAngle ) ) < PlayerTargetDeltaAngle &&
-                targetScore < PistolRange &&
-                weapon.delay <= 0 ) {
-
-            const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
-            const pos = vec2.scaleAndAdd( [], player.pos, dir, PlayerHandDistance );
-            const vel = vec2.scale( [], dir, PistolBulletSpeed );
-
-            this.entities.push( {
-              type: 'bullet',
-              group: 'bullets',
-              pos: pos,
-              vel: vel,
-              angle: weapon.angle,
-              radius: 0.1,
-              life: 1
-            } );
-
-            weapon.delay += PistolDelay;
-          }
-        }
-      } );
+      }
     }
 
     this.entities.forEach( entity => {
@@ -387,6 +406,15 @@ export class World {
         ctx.scale( ratio * entity.radius * 2, entity.radius * 2 );
 
 
+        // Spawn animation should apply to weapons, too
+        // TODO: Or maybe don't show hands until spawning complete?
+        if ( entity.animation?.name == 'spawn' ) {
+          const spawnPerc = Math.min( 1, entity.animation.time / SpawnAnimationTime );
+          const spawnScale = Math.sin( spawnPerc * Math.PI / 2 );
+
+          ctx.scale( spawnScale, spawnScale );
+        }
+
         // Facing and animations should only apply to main entity, not weapons
         ctx.save(); {
           // player image faces left, need to flip if facing right
@@ -399,6 +427,8 @@ export class World {
           //
           // Animations
           //
+
+
           if ( entity.animation?.name == 'walk' ) {
             // TODO: Scale based on size instead of speed?
             const walkOffset = 0.1 * Math.sin( entity.animation.time * entity.speed * 5 );

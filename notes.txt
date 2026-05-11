@@ -5,6 +5,9 @@ Animations for spawn and die
   - Scale down to zero to die
   - Keeps it simple for now
 
+Should I clear animations when they are done, or just leave them in place until another one replaces it?
+  - Seems cleaner to remove, but as long as they only take effect when in their time, maybe it doesn't matter
+
 5/7:
 
 DONE: Health powerup

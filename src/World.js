@@ -7,6 +7,8 @@ export const MapSize = 5;
 
 const PlayerSpeed = 0.003;
 const PlayerHandSpeed = 0.003;
+const PlayerHandRadius = 0.2;
+const PlayerHandDistance = 0.75;
 const PlayerTargetDeltaAngle = 0.1;
 
 const PlayerMaxLife = 10;
@@ -38,6 +40,23 @@ const EnemyMaxSpeed = 0.002;
 const UIBarWidth = 2;
 const UIBarHeight = 0.2;
 const UIBarLineWidth = 0.01;
+
+const Facing = {
+  Left: 0,
+  Right: 1,
+};
+
+
+const MonsterTypes = [
+  'monster_green',
+  'monster_blue',
+  'monster_yellow',
+];
+
+const PowerupTypes = [
+  'health',
+];
+
 
 export class World {
   entities = [];
@@ -102,7 +121,7 @@ export class World {
 
       this.entities.push(
         this.newMonster( {
-          type: randomFrom( Entities.MonsterTypes ),
+          type: randomFrom( MonsterTypes ),
           pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
           radius: EnemyMinSize  + size * ( EnemyMaxSize  - EnemyMinSize  ),
           life:   EnemyMinLife  + size * ( EnemyMaxLife  - EnemyMinLife  ),
@@ -123,7 +142,7 @@ export class World {
 
       this.entities.push(
         this.newPowerup( {
-          type: randomFrom( Entities.PowerupTypes ),
+          type: randomFrom( PowerupTypes ),
           pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
           // TODO: random amount of life? decay life in update so they stick around temporarily
         } )
@@ -148,10 +167,10 @@ export class World {
       // Player Movement
       //
       if ( input?.left ) {
-        player.facing = Entities.Facing.Left;
+        player.facing = Facing.Left;
       }
       else if ( input?.right ) {
-        player.facing = Entities.Facing.Right;
+        player.facing = Facing.Right;
       }
 
       const moveVector = [
@@ -214,7 +233,7 @@ export class World {
                 weapon.delay <= 0 ) {
 
             const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
-            const pos = vec2.scaleAndAdd( [], player.pos, dir, Entities.PlayerInfo.Hand.Distance );
+            const pos = vec2.scaleAndAdd( [], player.pos, dir, PlayerHandDistance );
             const vel = vec2.scale( [], dir, PistolBulletSpeed );
 
             this.entities.push( {
@@ -257,7 +276,7 @@ export class World {
 
           vec2.normalize( moveVector, moveVector );   // this is defaulting a weight of 1, maybe change later
 
-          entity.facing = moveVector[ 0 ] <= 0 ? Entities.Facing.Left : Entities.Facing.Right;
+          entity.facing = moveVector[ 0 ] <= 0 ? Facing.Left : Facing.Right;
 
           this.entities.forEach( other => {
             if ( entity != other && ( other.group === 'players' || other.group === 'monsters' ) ) {
@@ -354,7 +373,77 @@ export class World {
 
   draw( ctx ) {
     // TODO: Should the entities draw code just go here, then?
-    this.entities.forEach( entity => Entities.draw( ctx, entity ) );
+    this.entities.forEach( entity => {
+      const image = Entities.images[ entity.type ];
+
+      ctx.save(); {
+        ctx.translate( ...entity.pos );
+
+        if ( entity.angle ) {
+          ctx.rotate( entity.angle );
+        }
+
+        const ratio = image.width / image.height;
+        ctx.scale( ratio * entity.radius * 2, entity.radius * 2 );
+
+
+        // Facing and animations should only apply to main entity, not weapons
+        ctx.save(); {
+          // player image faces left, need to flip if facing right
+          // TODO: Would it make more sense to have everything face right (angle = 0) by default?
+          if ( entity.facing ) {
+            const dir = entity.facing == Facing.Left ? 1 : -1;
+            ctx.scale( dir, 1 );
+          }
+
+          //
+          // Animations
+          //
+          if ( entity.animation?.name == 'walk' ) {
+            // TODO: Scale based on size instead of speed?
+            const walkOffset = 0.1 * Math.sin( entity.animation.time * entity.speed * 5 );
+            ctx.translate( 0, -walkOffset / 2 );
+            ctx.scale( 1, 1 + walkOffset );
+          }
+
+          if ( entity.animation?.name == 'bite' ) {
+            // TODO: Scale based on size? (so bigger enemies bite slower)
+            const biteTime = Math.min( Math.PI, entity.animation.time / 100 );
+            const biteOffset = 0.5 * Math.sin( biteTime );
+
+            ctx.translate( -biteOffset / 2, 0 );
+
+            // scaleX, skewY, skewX, scaleY, translateX, translateY
+            ctx.transform( 1, 0, biteOffset, 1, 0, 0 );
+          }
+
+          ctx.drawImage( image, -0.5, -0.5, 1, 1 );
+
+          if ( entity.flashIntensity ) {
+            ctx.globalAlpha = Math.max( 0, Math.min( 1, entity.flashIntensity ) );
+            ctx.drawImage( Entities.masks[ entity.type ], -0.5, -0.5, 1, 1 );
+            ctx.globalAlpha = 1;
+          }
+        }
+        ctx.restore();
+
+        entity.weapons?.forEach( weapon => {
+          ctx.save(); {
+            ctx.rotate( weapon.angle );
+            ctx.translate( PlayerHandDistance, 0 );
+
+            ctx.scale( PlayerHandRadius, PlayerHandRadius );
+
+            ctx.fillStyle = '#c7b299';
+            ctx.beginPath();
+            ctx.arc( 0, 0, 0.5, 0, Math.PI * 2 );
+            ctx.fill();
+          }
+          ctx.restore();
+        } );
+      }
+      ctx.restore();
+    } );
 
     // UI
     // TODO: Base on edge of screen instead of world coords? (so not affected by zoom, etc)

@@ -18,15 +18,17 @@ gameCanvas.backgroundColor = '#321';
 
 gameCanvas.draw = ( ctx ) => {
 
-  for ( let i = 0; i < 1000; i ++ ) {
+  for ( let i = 0; i < 10000; i ++ ) {
+    const size = Math.random();
 
     const x = MapSize * ( 1 - 2 * Math.random() );
     const y = MapSize * ( 1 - 2 * Math.random() );
-    const r = Math.random() * MapSize / 8;
+    const r = size * MapSize / 10;
 
     ctx.beginPath();
     ctx.arc( x, y, r, 0, Math.PI * 2 );
-    ctx.fillStyle = '#4321';
+    ctx.fillStyle = '#432';
+    ctx.globalAlpha = 0.1 - 0.1 * size;
     ctx.fill();
   }
 

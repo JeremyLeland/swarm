@@ -403,6 +403,9 @@ export class World {
 
     ctx.drawImage( Entities.images.background, -MapSize * 2, -MapSize * 2, MapSize * 4, MapSize * 4 );
 
+    // Sort by y-coordinate for proper z-ordering
+    this.entities.sort( ( a, b ) => a.pos[ 1 ] - b.pos[ 1 ] );
+
     this.entities.forEach( entity => {
       const image = Entities.images[ entity.type ];
 

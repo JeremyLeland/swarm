@@ -3,7 +3,7 @@ import * as Entities from './Entities.js';
 
 import { vec2 } from '../lib/gl-matrix.js';
 
-export const MapSize = 5;
+export const MapSize = 10;
 
 const PlayerSpeed = 0.003;
 const PlayerHandSpeed = 0.003;
@@ -401,7 +401,7 @@ export class World {
 
   draw( ctx ) {
 
-    ctx.drawImage( Entities.images.background, -MapSize * 2, -MapSize * 2, MapSize * 4, MapSize * 4 );
+    ctx.drawImage( Entities.images.background, -MapSize, -MapSize, MapSize * 2, MapSize * 2 );
 
     // Sort by y-coordinate for proper z-ordering
     this.entities.sort( ( a, b ) => a.pos[ 1 ] - b.pos[ 1 ] );

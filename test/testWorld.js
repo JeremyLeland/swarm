@@ -8,11 +8,13 @@ import { vec2 } from '../lib/gl-matrix.js';
 import * as Entities from '../src/Entities.js';
 import { MapSize, World } from '../src/World.js';
 
+const ScreenWidth = 10;
+const ScreenHeight = 10;
 
 const world = new World();
 
 const gameCanvas = new GameCanvas();
-gameCanvas.bounds = [ -MapSize, -MapSize, MapSize, MapSize ];
+gameCanvas.setBounds( -ScreenWidth / 2, -ScreenHeight / 2, ScreenWidth / 2, ScreenHeight / 2 );
 gameCanvas.backgroundColor = '#321';
 
 const input = {
@@ -24,6 +26,19 @@ const input = {
 
 gameCanvas.update = ( dt ) => {
   world.update( dt, input );
+
+  const player = world.entities.find( e => e.type === 'player' );
+
+  if ( player ) {
+    // TODO: clamp scroll to within bounds
+
+    gameCanvas.setBounds(
+      player.pos[ 0 ] - ScreenWidth  / 2,
+      player.pos[ 1 ] - ScreenHeight / 2,
+      player.pos[ 0 ] + ScreenWidth  / 2,
+      player.pos[ 1 ] + ScreenHeight / 2,
+    );
+  }
 }
 
 gameCanvas.draw = ( ctx ) => {

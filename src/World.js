@@ -15,8 +15,8 @@ const PlayerMaxLife = 10;
 const PlayerSpawnTime = 3000;
 
 const FlashDecayRate = 0.005;
-const SpawnAnimationTime = 500;
-const DieAnimationTime = 500;
+const SpawnAnimationTime = 300;
+const DieAnimationTime = 300;
 
 const PistolDelay = 500;
 const PistolRange = 2;

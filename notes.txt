@@ -1,3 +1,25 @@
+5/13:
+
+Started to switch to a GameCanvas that handles scrolling
+  - This is actually a significant change
+  - I need to update a lot of things when bounds changes
+  - Does it still make sense to use bounds?
+    - Yes, the bounds are how I determine scaling and offset as window size changes
+    - I think changing the bounds to move with player is still appropriate
+    - I just need to properly update scale and offsets when that happens
+    - Also: update mouse info
+
+
+5/12:
+
+Turns out Brotato doesn't move the weapons around, they all stay in their spot and just turn
+  - I still like how mine looks for now, but this does avoid the overlap problems
+
+Next:
+  - Larger arena (with scrolling)
+  - Biggest change to make things more interesting, I think
+  - Also makes it clearer what is in bounds for bullets
+
 5/11:
 
 DONE: Animations for spawn and die

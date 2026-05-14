@@ -1,5 +1,4 @@
 export class GameCanvas {
-  bounds = [ -5, -5, 5, 5 ];
   backgroundColor = '#000';
 
   centerHorizontally = true;
@@ -7,6 +6,8 @@ export class GameCanvas {
 
   #lastTime;
   #isAnimated = false;
+
+  #bounds = [ -5, -5, 5, 5 ];
 
   #scale = 1;
   #offsetX = 0;
@@ -48,18 +49,11 @@ export class GameCanvas {
       this.canvas.width = cssWidth * devicePixelRatio;
       this.canvas.height = cssHeight * devicePixelRatio;
 
-      const minWidth = this.bounds[ 2 ] - this.bounds[ 0 ];
-      const minHeight = this.bounds[ 3 ] - this.bounds[ 1 ];
+      this.#updateScaleAndOffsets();
 
-      const xScale = cssWidth / minWidth;
-      const yScale = cssHeight / minHeight;
-
-      this.#scale = Math.min( xScale, yScale );
-
-      this.#offsetX = this.bounds[ 0 ] + ( this.centerHorizontally ? ( minWidth - cssWidth / this.#scale ) / 2 : 0 );
-      this.#offsetY = this.bounds[ 1 ] + ( this.centerVertically ? ( minHeight - cssHeight / this.#scale ) / 2 : 0 );
-
-      this.redraw();
+      if ( !this.#isAnimated ) {
+        this.redraw();
+      }
     } ).observe( this.canvas );
 
     //
@@ -99,6 +93,34 @@ export class GameCanvas {
 
       e.preventDefault();
     } );
+  }
+
+  setBounds( x1, y1, x2, y2 ) {
+    this.#bounds[ 0 ] = x1;
+    this.#bounds[ 1 ] = y1;
+    this.#bounds[ 2 ] = x2;
+    this.#bounds[ 3 ] = y2;
+
+    this.#updateScaleAndOffsets();
+
+    // TODO: Mouse X/Y should also update when we scroll
+    //       (not an issue at the moment, but could come up in games that scroll without mouse moving)
+  }
+
+  #updateScaleAndOffsets() {
+    const cssWidth = this.canvas.clientWidth;
+    const cssHeight = this.canvas.clientHeight;
+
+    const minWidth = this.#bounds[ 2 ] - this.#bounds[ 0 ];
+    const minHeight = this.#bounds[ 3 ] - this.#bounds[ 1 ];
+
+    const xScale = cssWidth / minWidth;
+    const yScale = cssHeight / minHeight;
+
+    this.#scale = Math.min( xScale, yScale );
+
+    this.#offsetX = this.#bounds[ 0 ] + ( this.centerHorizontally ? ( minWidth - cssWidth / this.#scale ) / 2 : 0 );
+    this.#offsetY = this.#bounds[ 1 ] + ( this.centerVertically ? ( minHeight - cssHeight / this.#scale ) / 2 : 0 );
   }
 
   #updatePointerInfo( e ) {

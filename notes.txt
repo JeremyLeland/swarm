@@ -10,6 +10,16 @@ DONE: Flip weapons instead of rotating if on left side
 Position weapons so barrel is centered, not hand
   - So bullets come out of barrel, and barrel doesn't bounce around when weapon flips
 
+5/18:
+
+Drawing the background is really slow on my laptop
+  - Is it too big to properly accelerate?
+    - Test: smaller image stretched out?
+    - Test: smaller image tiled?
+      - Could I generate a tileable image?
+	- Every time I draw a circle, draw more above, below, left, and right
+          - Maybe only if x < middle, y < middle, etc
+        - So the rest of it gets drawn on opposite edge
 
 5/14:
 
@@ -37,6 +47,7 @@ Draw a weapon in the hand
   - If guns are stationary and turn in place, it's easier to follow what's happening
     - Also they can target same enemy without overlapping each other
 
+>>>>>>> 39667b71154c685e0f97041738bb2a265ff03b39
 
 5/13:
 

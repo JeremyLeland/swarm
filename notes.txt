@@ -1,3 +1,43 @@
+5/20:
+
+Rebooted a few times today, and the game was running the entire time in the background
+  - Is there a way to pause automatically when losing focus?
+    - I feel like I did this with Frogger
+    - Can I prevent it from starting if window does not have focus?
+
+DONE: Flip weapons instead of rotating if on left side
+
+Position weapons so barrel is centered, not hand
+  - So bullets come out of barrel, and barrel doesn't bounce around when weapon flips
+
+
+5/14:
+
+Got the clamped scrolling working. It looks weird with square bounds, though.
+  - I should probably make the bounds be widescreen
+  - But then that will look weird when screen is square
+    - Do I letterbox it like movies?
+      - Letterboxing might at least make intent clearer
+    - I think enforcing a certain field of view is valid
+    - It just looks weird in my common testing setup
+
+Don't bake enemy spawning sequences into World
+  - This is separate enough from World responsibilities
+  - I may want to read off a "level" sequence
+  - I may want random
+  - I may want set test enemies without adding any more
+
+Draw UI outside of World
+  - So it's not affected by scrolling
+
+Draw a weapon in the hand
+  - So we can get a sense of what that looks like
+  - I'm thinking moving the hands around is going to be chaotic, especially with multiple hands
+  - It could look cool, but it also might just look like a mess
+  - If guns are stationary and turn in place, it's easier to follow what's happening
+    - Also they can target same enemy without overlapping each other
+
+
 5/13:
 
 Started to switch to a GameCanvas that handles scrolling

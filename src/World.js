@@ -81,7 +81,11 @@ export class World {
       speed: PlayerSpeed,
       weapons: [
         { type: 'pistol', angle: 0 },
+        { type: 'pistol', angle: 1 },
+        { type: 'pistol', angle: 2 },
         { type: 'pistol', angle: 3 },
+        { type: 'pistol', angle: 4 },
+        { type: 'pistol', angle: 5 },
       ],
       animation: {
         name: 'spawn',
@@ -479,7 +483,16 @@ export class World {
 
         entity.weapons?.forEach( weapon => {
           ctx.save(); {
-            ctx.rotate( weapon.angle );
+
+            // Flip weapons if they are on left side of entity
+            if ( Math.abs( Angle.fixAngle( weapon.angle ) ) > Math.PI / 2 ) {
+              ctx.scale( -1, 1 );
+              ctx.rotate( Math.PI - weapon.angle );
+            }
+            else {
+              ctx.rotate( weapon.angle );
+            }
+
             ctx.translate( PlayerHandDistance, 0 );
 
             ctx.scale( PlayerHandRadius, PlayerHandRadius );
@@ -488,6 +501,11 @@ export class World {
             ctx.beginPath();
             ctx.arc( 0, 0, 0.5, 0, Math.PI * 2 );
             ctx.fill();
+
+            // Placeholder weapon
+            ctx.fillStyle = '#fff';
+            ctx.fillRect( -0.5, -1, 0.5, 2 ); // handle
+            ctx.fillRect( -1.2, -1.2, 3, 0.5 );   // barrel
           }
           ctx.restore();
         } );

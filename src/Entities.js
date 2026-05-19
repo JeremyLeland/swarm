@@ -32,7 +32,8 @@ function getHealthImage() {
 images[ 'background' ] = getBackgroundImage();
 
 function getBackgroundImage() {
-  const canvas = new OffscreenCanvas( 2000, 2000 );
+  // keep this 1024x1024 for now (otherwise old laptop perf tanks)
+  const canvas = new OffscreenCanvas( 1024, 1024 );
   const ctx = canvas.getContext( '2d' );
 
   for ( let i = 0; i < 3000; i ++ ) {

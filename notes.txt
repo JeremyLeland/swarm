@@ -1,3 +1,14 @@
+5/18:
+
+Drawing the background is really slow on my laptop
+  - Is it too big to properly accelerate?
+    - Test: smaller image stretched out?
+    - Test: smaller image tiled?
+      - Could I generate a tileable image?
+	- Every time I draw a circle, draw more above, below, left, and right
+          - Maybe only if x < middle, y < middle, etc
+        - So the rest of it gets drawn on opposite edge
+
 5/13:
 
 Started to switch to a GameCanvas that handles scrolling

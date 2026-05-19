@@ -32,7 +32,8 @@ function getHealthImage() {
 images[ 'background' ] = getBackgroundImage();
 
 function getBackgroundImage() {
-  const canvas = new OffscreenCanvas( 2000, 2000 );
+  // FF on my old laptop gets much worse if this is larger than 1024x1024
+  const canvas = new OffscreenCanvas( 1024, 1024 );
   const ctx = canvas.getContext( '2d' );
 
   for ( let i = 0; i < 3000; i ++ ) {

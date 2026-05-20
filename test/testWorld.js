@@ -46,7 +46,7 @@ const MapBounds = [ -MapSize, -MapSize, MapSize, MapSize ];
 
 gameCanvas.draw = ( ctx ) => {
   world.draw( ctx );
-  Grid.draw( ctx, MapBounds );
+  // Grid.draw( ctx, MapBounds );
 }
 
 gameCanvas.start();

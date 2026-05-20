@@ -7,8 +7,8 @@ export const MapSize = 10;
 
 const PlayerSpeed = 0.003;
 const PlayerHandSpeed = 0.003;
-const PlayerHandRadius = 0.2;
-const PlayerHandDistance = 0.75;
+const PlayerHandRadius = 0.125;
+const PlayerWeaponDistance = 0.75;
 const PlayerTargetDeltaAngle = 0.1;
 
 const PlayerMaxLife = 10;
@@ -22,6 +22,7 @@ const PistolDelay = 500;
 const PistolRange = 2;
 const PistolBulletSpeed = 0.01;
 const PistolBulletDamage = 1;
+const PistolBarrelLength = 0.7;
 
 const PowerupHealthBoost = 1;
 const PowerupMinSpawnTime = 5000;
@@ -81,11 +82,11 @@ export class World {
       speed: PlayerSpeed,
       weapons: [
         { type: 'pistol', angle: 0 },
-        { type: 'pistol', angle: 1 },
-        { type: 'pistol', angle: 2 },
-        { type: 'pistol', angle: 3 },
-        { type: 'pistol', angle: 4 },
-        { type: 'pistol', angle: 5 },
+        { type: 'pistol', angle: Math.PI / 2 },
+        { type: 'pistol', angle: -Math.PI / 2 },
+        { type: 'pistol', angle: Math.PI },
+        // { type: 'pistol', angle: 4 },
+        // { type: 'pistol', angle: 5 },
       ],
       animation: {
         name: 'spawn',
@@ -256,7 +257,7 @@ export class World {
                   weapon.delay <= 0 ) {
 
               const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
-              const pos = vec2.scaleAndAdd( [], player.pos, dir, PlayerHandDistance );
+              const pos = vec2.scaleAndAdd( [], player.pos, dir, PlayerWeaponDistance + PistolBarrelLength );
               const vel = vec2.scale( [], dir, PistolBulletSpeed );
 
               this.entities.push( {
@@ -405,6 +406,7 @@ export class World {
 
   draw( ctx ) {
 
+    // Not sure what I want for background, but this is kind of noisy and distracting
     ctx.drawImage( Entities.images.background, -MapSize, -MapSize, MapSize * 2, MapSize * 2 );
 
     // Sort by y-coordinate for proper z-ordering
@@ -493,19 +495,19 @@ export class World {
               ctx.rotate( weapon.angle );
             }
 
-            ctx.translate( PlayerHandDistance, 0 );
+            ctx.translate( PlayerWeaponDistance, 0 );
 
-            ctx.scale( PlayerHandRadius, PlayerHandRadius );
+            // Placeholder weapon
+            ctx.fillStyle = '#789';
+            ctx.fillRect( 0.15, 0, 0.15, 0.4 ); // handle
+            ctx.fillRect( 0, -0.07, 0.7, 0.14 );   // barrel
 
             ctx.fillStyle = '#c7b299';
             ctx.beginPath();
-            ctx.arc( 0, 0, 0.5, 0, Math.PI * 2 );
+            ctx.arc( 0.2, 0.18, PlayerHandRadius, 0, Math.PI * 2 );
             ctx.fill();
-
-            // Placeholder weapon
-            ctx.fillStyle = '#fff';
-            ctx.fillRect( -0.5, -1, 0.5, 2 ); // handle
-            ctx.fillRect( -1.2, -1.2, 3, 0.5 );   // barrel
+            ctx.lineWidth = 0.03;
+            ctx.stroke();
           }
           ctx.restore();
         } );

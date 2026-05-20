@@ -1,5 +1,15 @@
 5/20:
 
+DONE: Position weapons so barrel is centered
+ - Bullets are being drawn on top of guns
+  - Spawn further away? Need to know barrel length (although could be same for all guns)
+
+Draw UI outside of world (so it isn't scrolled)
+
+
+
+5/19:
+
 Rebooted a few times today, and the game was running the entire time in the background
   - Is there a way to pause automatically when losing focus?
     - I feel like I did this with Frogger

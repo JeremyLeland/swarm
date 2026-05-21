@@ -1,3 +1,9 @@
+5/21:
+
+DONE: Pass bounds to draw() so we can put UI in right place
+
+DONE: Add letterboxing to GameCanvas to make it clearer what our viewport is (and block out stuff beyond it)
+
 5/20:
 
 DONE: Position weapons so barrel is centered
@@ -5,6 +11,30 @@ DONE: Position weapons so barrel is centered
   - Spawn further away? Need to know barrel length (although could be same for all guns)
 
 Draw UI outside of world (so it isn't scrolled)
+  - Actually, everything is scrolled the way I'm doing it now
+  - Need to break scroll from canvas
+  - Canvas has its viewport, that's fine. 
+    - Should be able to leave all that and just scroll in world.
+    - ** Should I put it back how it was and have it be a one-time set? **
+      - only reason we changed it was for scrolling and zooming, 
+      - maybe it's better to have world track that 
+        - so we can cleanly differentiate between UI elements on screen and entities in the world
+
+GameCanvas
+  - Use bounds for field of view (ensure this much is visible, scale and center as needed)
+  - Letterbox (optional) to prevent excess world drawing when window doesn't match viewport
+  - Pass bounds into draw() so game can optionally leave out things not on screen?
+  - World could also use this to calculate where UI should be drawn
+    - so we could still scroll by changing GameCanvas bounds
+  - Still feel like scrolling based on character should be handled by World
+    - but what if we had a squad, and player could manually scroll around to see who they wanted?
+    - that seems outside scope of world
+
+Don't go down too much of a rabbit hole on GameCanvas
+  - I tried simplifying it for Cards project, and ended up putting most of it back in
+  - Added some notes, but should try to leave most of this as is for now
+  - I think just adding the bounds to draw will help give me what I need
+    - Should I add these as separate values ( left, top, right, bottom ) so callers can't accidentally change it?
 
 
 

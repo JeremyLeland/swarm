@@ -4,6 +4,8 @@ export class GameCanvas {
   centerHorizontally = true;
   centerVertically = true;
 
+  letterbox = true;
+
   #lastTime;
   #isAnimated = false;
 
@@ -51,9 +53,7 @@ export class GameCanvas {
 
       this.#updateScaleAndOffsets();
 
-      if ( !this.#isAnimated ) {
-        this.redraw();
-      }
+      this.redraw();
     } ).observe( this.canvas );
 
     //
@@ -123,13 +123,24 @@ export class GameCanvas {
     this.#offsetY = this.#bounds[ 1 ] + ( this.centerVertically ? ( minHeight - cssHeight / this.#scale ) / 2 : 0 );
   }
 
+  // TODO: Instead of doing all this, could we just have helper functions to getX() and getY()?
+
+  // Is this vulnerable to accidently being changed by handlers?
+  // Should these values be better protected somehow?
+
   #updatePointerInfo( e ) {
+    // Do we need to invalidate existing mouse values anytime the scale and offsets change?
     const lastX = this.#mouse.x ?? undefined;
     const lastY = this.#mouse.y ?? undefined;
+
     this.#mouse.x = e.pageX / this.#scale + this.#offsetX;
     this.#mouse.y = e.pageY / this.#scale + this.#offsetY;
+
+    // Was there a reason we couldn't just use movementX/movementY here?
     this.#mouse.dx = lastX ? this.#mouse.x - lastX : 0;
     this.#mouse.dy = lastY ? this.#mouse.y - lastY : 0;
+
+    // Do we really need to save all this, or can caller handle their own events and just call getX/getY() for scale/offset?
     this.#mouse.buttons = e.buttons;
     this.#mouse.wheel = e.wheelDelta;
     this.#mouse.shiftKey = e.shiftKey;
@@ -182,15 +193,25 @@ export class GameCanvas {
     this.ctx.scale( this.#scale, this.#scale );
     this.ctx.translate( -this.#offsetX, -this.#offsetY );
 
-    this.ctx.fillStyle = this.backgroundColor;
-    this.ctx.fillRect(
-      this.#offsetX,
-      this.#offsetY,
-      this.canvas.clientWidth / this.#scale,
-      this.canvas.clientHeight / this.#scale,
-    );
+    const canvasWidth = this.canvas.clientWidth / this.#scale;
+    const canvasHeight = this.canvas.clientHeight / this.#scale;
 
-    this.draw( this.ctx );
+    if ( this.backgroundColor ) {
+      this.ctx.fillStyle = this.backgroundColor;
+      this.ctx.fillRect( this.#offsetX, this.#offsetY, canvasWidth, canvasHeight );
+    }
+
+    this.draw( this.ctx, this.#bounds );
+
+    if ( this.letterbox ) {
+      this.ctx.fillStyle = 'black';
+
+      this.ctx.fillRect( this.#bounds[ 0 ], this.#offsetY, this.#offsetX - this.#bounds[ 0 ], canvasHeight );
+      this.ctx.fillRect( this.#bounds[ 2 ], this.#offsetY, this.#bounds[ 2 ] - this.#offsetX, canvasHeight );
+
+      this.ctx.fillRect( this.#offsetX, this.#bounds[ 1 ], canvasWidth, this.#offsetY - this.#bounds[ 1 ] );
+      this.ctx.fillRect( this.#offsetX, this.#bounds[ 3 ], canvasWidth, this.#bounds[ 3 ] - this.#offsetY );
+    }
   }
 
   //

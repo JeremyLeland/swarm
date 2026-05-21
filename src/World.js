@@ -404,7 +404,7 @@ export class World {
     this.entities = this.entities.filter( e => e.life > 0 || e.delay > 0 );
   }
 
-  draw( ctx ) {
+  draw( ctx, bounds ) {
 
     // Not sure what I want for background, but this is kind of noisy and distracting
     ctx.drawImage( Entities.images.background, -MapSize, -MapSize, MapSize * 2, MapSize * 2 );
@@ -516,12 +516,10 @@ export class World {
     } );
 
     // UI
-    // TODO: Base on edge of screen instead of world coords? (so not affected by zoom, etc)
-    //       Maybe move this out of World, too
     const player = this.entities.find( e => e.type === 'player' );
 
     ctx.save(); {
-      ctx.translate( -MapSize + 0.1, -MapSize + 0.1 );
+      ctx.translate( bounds[ 0 ], bounds[ 1 ] );
 
       if ( player ) {
         ctx.fillStyle = 'red';

@@ -8,7 +8,7 @@ import { vec2 } from '../lib/gl-matrix.js';
 import * as Entities from '../src/Entities.js';
 import { MapSize, World } from '../src/World.js';
 
-const ScreenWidth_2 = 10 / 2;
+const ScreenWidth_2 = 16 / 2;
 const ScreenHeight_2 = 10 / 2;
 
 const world = new World();
@@ -44,8 +44,8 @@ gameCanvas.update = ( dt ) => {
 
 const MapBounds = [ -MapSize, -MapSize, MapSize, MapSize ];
 
-gameCanvas.draw = ( ctx ) => {
-  world.draw( ctx );
+gameCanvas.draw = ( ctx, bounds ) => {
+  world.draw( ctx, bounds );
   // Grid.draw( ctx, MapBounds );
 }
 

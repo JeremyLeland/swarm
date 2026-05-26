@@ -206,6 +206,10 @@ export class World {
           vec2.normalize( moveVector, moveVector );
           vec2.scaleAndAdd( player.pos, player.pos, moveVector, PlayerSpeed * dt );
 
+          // Keep player inside level
+          player.pos[ 0 ] = Math.max( player.radius - MapSize, Math.min( MapSize - player.radius, player.pos[ 0 ] ) );
+          player.pos[ 1 ] = Math.max( player.radius - MapSize, Math.min( MapSize - player.radius, player.pos[ 1 ] ) );
+
           if ( player.animation?.name != 'walk' ) {
             console.log( 'Player Walk!' );
             player.animation = { name: 'walk', time: 0 };

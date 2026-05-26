@@ -498,13 +498,15 @@ export class World {
             ctx.translate( PlayerWeaponDistance, 0 );
 
             // Placeholder weapon
-            ctx.fillStyle = '#789';
-            ctx.fillRect( 0.15, 0, 0.15, 0.4 ); // handle
-            ctx.fillRect( 0, -0.07, 0.7, 0.14 );   // barrel
+            // ctx.fillStyle = '#789';
+            // ctx.fillRect( 0.15, 0, 0.15, 0.4 ); // handle
+            // ctx.fillRect( 0, -0.07, 0.7, 0.14 );   // barrel
+
+            ctx.drawImage( Entities.images[ 'pistol' ], 0, -0.2, 0.75, 0.75 );
 
             ctx.fillStyle = '#c7b299';
             ctx.beginPath();
-            ctx.arc( 0.2, 0.18, PlayerHandRadius, 0, Math.PI * 2 );
+            ctx.arc( 0.3, 0.18, PlayerHandRadius, 0, Math.PI * 2 );
             ctx.fill();
             ctx.lineWidth = 0.03;
             ctx.stroke();

@@ -1,8 +1,38 @@
+5/25:
+
+Images for guns
+  - DONE: Start with image for current gun
+  - Next do second gun, with different constants
+
 5/21:
 
 DONE: Pass bounds to draw() so we can put UI in right place
 
 DONE: Add letterboxing to GameCanvas to make it clearer what our viewport is (and block out stuff beyond it)
+
+Multiple weapon types
+  - the "weapon" folder has some decent images
+  - Different constants for image, number of bullets, damage, etc
+    - sort these by string used for weapon type
+  - Can do a pistol and an uzi or rifle for now
+    - So we are just dealing with different fire rates, not multiple projectiles
+    - Later step would be shotgun for multiple projectiles, spread, etc
+
+Spawn in clusters
+  - In a line? In a circle? Circle with different random radii, so they look more spread out?
+
+Spawn schedule
+  - instead of baking a schedule into world with timers
+    - have a list of upcoming spawn times and locations
+    - this can either be set once with a static list (for a preplanned level)
+      - or changed dynamically for a randomly generated level
+      - or empty for an empty test
+    - World owner will be responsible for setting and updating schedule
+      - should it save as part of world state?
+      - could keep it private and add entries via function
+    - List of { time: TIME_TO_SPAWN, entity: {} }
+      - World keeps track of it's internal time
+      - Pulls any entries out of the list that are less than current time and adds them to world
 
 5/20:
 

@@ -4,6 +4,7 @@ export const images = await loadImages( {
   'monster_blue': './images/blue.png',
   'monster_yellow': './images/spikey.png',
   'bullet': './images/bullet.png',
+  'pistol': './images/pistol.png',
 } );
 
 images[ 'health' ] = getHealthImage();

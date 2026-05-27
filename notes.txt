@@ -1,8 +1,26 @@
+5/26:
+
+DONE: Add rifle image, made gun info be array based on gun type
+
+DONE: The gun images look a little stretched weirdly
+  - Is the player scale being incorrectly applied to weapons as well?
+  - Should I scope it to just the entity image?
+
+DONE: Rifle
+  - Need different hand offsets for pistol, rifle
+    - Or maybe same hand spot, different weapon offsets?
+
+We are too heavily weighting angleDistance over distance
+  - Not engaging targets that get very close to use because someone far away is near the gun angle
+  - Need to tweak the weighting/formula here
+
 5/25:
 
 Images for guns
   - DONE: Start with image for current gun
   - Next do second gun, with different constants
+
+DONE: Keep player inside level
 
 5/21:
 

@@ -3,8 +3,10 @@ export const images = await loadImages( {
   'monster_green': './images/green1.png',
   'monster_blue': './images/blue.png',
   'monster_yellow': './images/spikey.png',
-  'bullet': './images/bullet.png',
+  'pistolBullet': './images/bullet.png',
+  'rifleBullet': './images/bullet.png',
   'pistol': './images/pistol.png',
+  'rifle': './images/rifle.png',
 } );
 
 images[ 'health' ] = getHealthImage();

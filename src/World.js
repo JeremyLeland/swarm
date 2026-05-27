@@ -18,11 +18,35 @@ const FlashDecayRate = 0.005;
 const SpawnAnimationTime = 300;
 const DieAnimationTime = 300;
 
-const PistolDelay = 500;
-const PistolRange = 2;
-const PistolBulletSpeed = 0.01;
-const PistolBulletDamage = 1;
-const PistolBarrelLength = 0.7;
+const WeaponInfo = {
+  'pistol': {
+    delay: 500,
+    range: 2,
+    offset: [ -0.07, -0.2 ],
+    handOffset: [ 0.3, 0.18 ],
+    barrelLength: 0.7,
+    bulletType: 'pistolBullet',
+  },
+  'rifle': {
+    delay: 150,
+    range: 2,
+    offset: [ -0.2, -0.24 ],
+    handOffset: [ 0.4, 0.18 ],
+    barrelLength: 1.5,
+    bulletType: 'rifleBullet',
+  },
+}
+
+const BulletInfo = {
+  'pistolBullet': {
+    speed: 0.01,
+    damage: 1,
+  },
+  'rifleBullet': {
+    speed: 0.01,
+    damage: 0.5,
+  },
+}
 
 const PowerupHealthBoost = 1;
 const PowerupMinSpawnTime = 5000;
@@ -82,9 +106,9 @@ export class World {
       speed: PlayerSpeed,
       weapons: [
         { type: 'pistol', angle: 0 },
-        { type: 'pistol', angle: Math.PI / 2 },
-        { type: 'pistol', angle: -Math.PI / 2 },
-        { type: 'pistol', angle: Math.PI },
+        // { type: 'pistol', angle: Math.PI / 2 },
+        { type: 'rifle', angle: -Math.PI / 2 },
+        // { type: 'pistol', angle: Math.PI },
         // { type: 'pistol', angle: 4 },
         // { type: 'pistol', angle: 5 },
       ],
@@ -256,16 +280,23 @@ export class World {
             const handDist = Angle.deltaAngle( weapon.angle, targetAngle );
             weapon.angle += Math.tanh( 10 * handDist ) * PlayerHandSpeed * dt;
 
+            const weaponInfo = WeaponInfo[ weapon.type ];
+            const bulletInfo = BulletInfo[ weaponInfo.bulletType ];
+
+            if ( !bulletInfo ) {
+              debugger;
+            }
+
             if ( Math.abs( Angle.deltaAngle( weapon.angle, targetAngle ) ) < PlayerTargetDeltaAngle &&
-                  targetScore < PistolRange &&
+                  targetScore < weaponInfo.range &&
                   weapon.delay <= 0 ) {
 
               const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
-              const pos = vec2.scaleAndAdd( [], player.pos, dir, PlayerWeaponDistance + PistolBarrelLength );
-              const vel = vec2.scale( [], dir, PistolBulletSpeed );
+              const pos = vec2.scaleAndAdd( [], player.pos, dir, PlayerWeaponDistance + weaponInfo.barrelLength );
+              const vel = vec2.scale( [], dir, bulletInfo.speed );
 
               this.entities.push( {
-                type: 'bullet',
+                type: weaponInfo.bulletType,
                 group: 'bullets',
                 pos: pos,
                 vel: vel,
@@ -274,7 +305,7 @@ export class World {
                 life: 1
               } );
 
-              weapon.delay += PistolDelay;
+              weapon.delay += weaponInfo.delay;
             }
           }
         } );
@@ -378,7 +409,7 @@ export class World {
             if ( vec2.distance( entity.pos, other.pos ) < entity.radius + other.radius ) {
               entity.life = 0;
 
-              other.life -= PistolBulletDamage;
+              other.life -= BulletInfo[ entity.type ].damage;
               other.flashIntensity = 1;
 
               if ( other.life <= 0 ) {
@@ -417,18 +448,12 @@ export class World {
     this.entities.sort( ( a, b ) => a.pos[ 1 ] - b.pos[ 1 ] );
 
     this.entities.forEach( entity => {
-      const image = Entities.images[ entity.type ];
-
       ctx.save(); {
         ctx.translate( ...entity.pos );
 
         if ( entity.angle ) {
           ctx.rotate( entity.angle );
         }
-
-        const ratio = image.width / image.height;
-        ctx.scale( ratio * entity.radius * 2, entity.radius * 2 );
-
 
         // Spawn animation should apply to weapons, too
         // TODO: Or maybe don't show hands until spawning complete?
@@ -447,6 +472,15 @@ export class World {
 
         // Facing and animations should only apply to main entity, not weapons
         ctx.save(); {
+
+          const image = Entities.images[ entity.type ];
+
+          if ( !image ) {
+            debugger;
+          }
+
+          ctx.scale( entity.radius * 2 * image.width / image.height, entity.radius * 2 );
+
           // player image faces left, need to flip if facing right
           // TODO: Would it make more sense to have everything face right (angle = 0) by default?
           if ( entity.facing ) {
@@ -477,7 +511,7 @@ export class World {
             ctx.transform( 1, 0, biteOffset, 1, 0, 0 );
           }
 
-          ctx.drawImage( image, -0.5, -0.5, 1, 1 );
+          ctx.drawImage( image, -0.5, -0.5, 1, 1 );   // sized 1,1 because we already scaled above
 
           if ( entity.flashIntensity ) {
             ctx.globalAlpha = Math.max( 0, Math.min( 1, entity.flashIntensity ) );
@@ -501,16 +535,14 @@ export class World {
 
             ctx.translate( PlayerWeaponDistance, 0 );
 
-            // Placeholder weapon
-            // ctx.fillStyle = '#789';
-            // ctx.fillRect( 0.15, 0, 0.15, 0.4 ); // handle
-            // ctx.fillRect( 0, -0.07, 0.7, 0.14 );   // barrel
+            const weaponImage = Entities.images[ weapon.type ];
+            const weaponInfo = WeaponInfo[ weapon.type ];
 
-            ctx.drawImage( Entities.images[ 'pistol' ], 0, -0.2, 0.75, 0.75 );
+            ctx.drawImage( weaponImage, weaponInfo.offset[ 0 ], weaponInfo.offset[ 1 ], 0.75 * weaponImage.width / weaponImage.height, 0.75 );
 
             ctx.fillStyle = '#c7b299';
             ctx.beginPath();
-            ctx.arc( 0.3, 0.18, PlayerHandRadius, 0, Math.PI * 2 );
+            ctx.arc( weaponInfo.handOffset[ 0 ], weaponInfo.handOffset[ 1 ], PlayerHandRadius, 0, Math.PI * 2 );
             ctx.fill();
             ctx.lineWidth = 0.03;
             ctx.stroke();

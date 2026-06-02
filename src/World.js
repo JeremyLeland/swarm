@@ -49,11 +49,6 @@ const BulletInfo = {
 }
 
 const PowerupHealthBoost = 1;
-const PowerupMinSpawnTime = 5000;
-const PowerupMaxSpawnTime = 8000;
-
-const EnemyMinSpawnTime = 300;
-const EnemyMaxSpawnTime = 1000;
 
 const EnemyBiteDist = 0.4;
 const EnemyBiteDelay = 800;
@@ -74,23 +69,8 @@ const Facing = {
 };
 
 
-const MonsterTypes = [
-  'monster_green',
-  'monster_blue',
-  'monster_yellow',
-];
-
-const PowerupTypes = [
-  'health',
-];
-
-
 export class World {
   entities = [];
-
-  playerSpawnTimer = 0;
-  enemySpawnTimer = EnemyMinSpawnTime;
-  powerupSpawnTimer = PowerupMinSpawnTime;
 
   #targets = new Set();
 
@@ -120,14 +100,19 @@ export class World {
   }
 
   newMonster( vals ) {
+    const size = vals.size ?? 0.5;
+
     return Object.assign( {
       group: 'monsters',
       pos: [ 0, 0 ],
-      radius: 0.5,
+
+      radius: EnemyMinSize  + size * ( EnemyMaxSize  - EnemyMinSize  ),
+      life:   EnemyMinLife  + size * ( EnemyMaxLife  - EnemyMinLife  ),
+      speed:  EnemyMaxSpeed - size * ( EnemyMaxSpeed - EnemyMinSpeed ),
+
       facing: 0,
       delay: SpawnAnimationTime,
-      life: 1,
-      speed: EnemyMinSpeed,
+
       animation: {
         name: 'spawn',
         time: 0,
@@ -150,69 +135,18 @@ export class World {
 
   update( dt, input ) {
 
-    // Spawning more enemies (for now, just hardcode this into world)
-    if ( this.enemySpawnTimer > 0 ) {
-      this.enemySpawnTimer -= dt;
-    }
-    else {
-      this.enemySpawnTimer += EnemyMinSpawnTime + Math.random() * ( EnemyMaxSpawnTime - EnemyMinSpawnTime );
-
-      const dist = Math.random() * MapSize + 2; //MapSize + Math.random() * 4;
-      const angle = Math.random() * Math.PI * 2;
-
-      // Weight more heavily toward smaller monsters
-      const size = Math.random() ** 3;
-
-      this.entities.push(
-        this.newMonster( {
-          type: randomFrom( MonsterTypes ),
-          pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
-          radius: EnemyMinSize  + size * ( EnemyMaxSize  - EnemyMinSize  ),
-          life:   EnemyMinLife  + size * ( EnemyMaxLife  - EnemyMinLife  ),
-          speed:  EnemyMaxSpeed - size * ( EnemyMaxSpeed - EnemyMinSpeed ),
-        } )
-      );
-    }
-
-    // Spawning powerups
-    if ( this.powerupSpawnTimer > 0 ) {
-      this.powerupSpawnTimer -= dt;
-    }
-    else {
-      this.powerupSpawnTimer += PowerupMinSpawnTime + Math.random() * ( PowerupMaxSpawnTime - PowerupMinSpawnTime );
-
-      const dist = Math.random() * MapSize;
-      const angle = Math.random() * Math.PI * 2;
-
-      this.entities.push(
-        this.newPowerup( {
-          type: randomFrom( PowerupTypes ),
-          pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
-          // TODO: random amount of life? decay life in update so they stick around temporarily
-        } )
-      );
-    }
-
     // TODO: Handle multiple players?
     const player = this.entities.find( e => e.type === 'player' );
 
-    if ( !player ) {
-      if ( this.playerSpawnTimer > 0 ) {
-        this.playerSpawnTimer -= dt;
-      }
-      else {
-        this.playerSpawnTimer = PlayerSpawnTime;
-
-        this.entities.push( this.newPlayer() );
-      }
-    }
-    else {
+    if ( player ) {
       if ( player.delay > 0 ) {
         player.delay -= dt;
       }
       else {
         //
         // Player Movement
+        // TODO: Save this as player state instead of a separate input parameter?
+        //       Then caller is responsible for setting it properly
         //
         if ( input?.left ) {
           player.facing = Facing.Left;
@@ -570,8 +504,4 @@ export class World {
     }
     ctx.restore();
   }
-}
-
-function randomFrom( array ) {
-  return array[ Math.floor( Math.random() * array.length ) ];
 }

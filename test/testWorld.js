@@ -13,8 +13,11 @@ import { MapSize, World } from '../src/World.js';
 const PowerupMinSpawnTime = 5000;
 const PowerupMaxSpawnTime = 8000;
 
-const EnemyMinSpawnTime = 300;
-const EnemyMaxSpawnTime = 1000;
+const EnemyMinSpawnTime = 1300;
+const EnemyMaxSpawnTime = 2000;
+
+const EnemyMinSpawnCount = 2;
+const EnemyMaxSpawnCount = 8;
 
 const MonsterTypes = [
   'monster_green',
@@ -58,16 +61,27 @@ gameCanvas.update = ( dt ) => {
   else {
     enemySpawnTimer += EnemyMinSpawnTime + Math.random() * ( EnemyMaxSpawnTime - EnemyMinSpawnTime );
 
-    const dist = Math.random() * MapSize + 2; //MapSize + Math.random() * 4;
-    const angle = Math.random() * Math.PI * 2;
 
-    world.entities.push(
-      world.newMonster( {
+    const x = MapSize * ( 1 - 2 * Math.random() );
+    const y = MapSize * ( 1 - 2 * Math.random() );
+
+    const num = EnemyMinSpawnCount + Math.round( Math.random() * ( EnemyMaxSpawnCount - EnemyMinSpawnCount ) );
+    for ( let i = 0; i < num; i ++ ) {
+
+      const enemy = world.newMonster( {
         type: randomFrom( MonsterTypes ),
-        pos: [ Math.cos( angle ) * dist, Math.sin( angle ) * dist ],
-        size: Math.random() ** 3,   // weight more heavily toward smaller monsters
-      } )
-    );
+        pos: [ x, y ],
+        size: Math.random() ** 3,     // weight more heavily toward smaller monsters
+      } );
+
+      const angle = ( i / num ) * Math.PI * 2;
+      const dist = enemy.radius * 3;
+
+      enemy.pos[ 0 ] += dist * Math.cos( angle );
+      enemy.pos[ 1 ] += dist * Math.sin( angle );
+
+      world.entities.push( enemy );
+    }
   }
 
   // Spawning powerups

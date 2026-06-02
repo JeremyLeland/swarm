@@ -1,13 +1,14 @@
 6/2:
 
 NOW: Spawning
-  - Move enemy and powerup spawning logic out of World
+  - DONE: Move enemy and powerup spawning logic out of World
     - Easier to test with given set of enemies/powerups
     - Can either provide pre-made levels or generate endlessly or whatever
-  - Test out spawning in clusters
+  - DONE: Test out spawning in clusters
     - Near each other, but not too close?
     - In a line? In a circle?
-  - Don't autospawn player, either.
+      - Circle with offsets based on radius seems to work well
+  - DONE: Don't autospawn player, either.
     - This is getting more annoying than helpful at this point
 
 LATER: We are too heavily weighting angleDistance over distance

@@ -86,9 +86,10 @@ export class World {
       speed: PlayerSpeed,
       weapons: [
         { type: 'pistol', angle: 0 },
-        // { type: 'pistol', angle: Math.PI / 2 },
         { type: 'rifle', angle: -Math.PI / 2 },
-        // { type: 'pistol', angle: Math.PI },
+
+        // { type: 'pistol', angle: Math.PI / 2 },
+        { type: 'pistol', angle: Math.PI },
         // { type: 'pistol', angle: 4 },
         // { type: 'pistol', angle: 5 },
       ],

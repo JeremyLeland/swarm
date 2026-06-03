@@ -198,9 +198,8 @@ export class World {
 
               const angleDist = Math.abs( Angle.deltaAngle( weapon.angle, angle ) );
 
-              const score = dist * angleDist;
+              const score = dist ** 2 * angleDist;
 
-              // TODO: Account for angle so we aren't making as dramatic a switch?
               if ( score < targetScore ) {
                 target = other;
                 targetAngle = angle;

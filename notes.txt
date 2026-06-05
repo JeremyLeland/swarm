@@ -1,6 +1,20 @@
+6/4:
+
+Upcoming
+  - Spawn list (pre-planned level)
+    - List of { time: TIME_TO_SPAWN, entity: {} }
+  - DONE: Shotgun
+    - Multiple bullets
+    - Add constants for:
+      - number of bullets (default 1?)
+      - spread angle (default 0?)
+      - always hardcode?
+
+
+
 6/2:
 
-NOW: Spawning
+DONE: NOW: Spawning
   - DONE: Move enemy and powerup spawning logic out of World
     - Easier to test with given set of enemies/powerups
     - Can either provide pre-made levels or generate endlessly or whatever
@@ -11,7 +25,7 @@ NOW: Spawning
   - DONE: Don't autospawn player, either.
     - This is getting more annoying than helpful at this point
 
-LATER: We are too heavily weighting angleDistance over distance
+DONE: LATER: We are too heavily weighting angleDistance over distance
   - Not engaging targets that get very close to use because someone far away is near the gun angle
   - Need to tweak the weighting/formula here
   - Also maybe a max range, so we aren't shooting at things off the screen?

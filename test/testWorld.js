@@ -42,6 +42,8 @@ const world = new World();
 
 world.entities.push( world.newPlayer() );
 
+// world.entities.push( world.newMonster( { type: 'monster_green', pos: [ -6, 0 ] } ) );
+
 const input = {
   left:   false,
   up:     false,

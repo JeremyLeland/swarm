@@ -35,6 +35,16 @@ const WeaponInfo = {
     barrelLength: 1.5,
     bulletType: 'rifleBullet',
   },
+  'shotgun': {
+    delay: 800,
+    range: 2,
+    offset: [ -0.2, -0.1 ],
+    handOffset: [ 0.6, 0.3 ],
+    barrelLength: 1.8,
+    bulletType: 'shotgunPellet',
+    bulletCount: 5,
+    bulletSpread: Math.PI / 8,
+  },
 }
 
 const BulletInfo = {
@@ -43,6 +53,10 @@ const BulletInfo = {
     damage: 1,
   },
   'rifleBullet': {
+    speed: 0.01,
+    damage: 0.5,
+  },
+  'shotgunPellet': {
     speed: 0.01,
     damage: 0.5,
   },
@@ -87,9 +101,9 @@ export class World {
       weapons: [
         { type: 'pistol', angle: 0 },
         { type: 'rifle', angle: -Math.PI / 2 },
+        { type: 'shotgun', angle: Math.PI },
 
         // { type: 'pistol', angle: Math.PI / 2 },
-        { type: 'pistol', angle: Math.PI },
         // { type: 'pistol', angle: 4 },
         // { type: 'pistol', angle: 5 },
       ],
@@ -183,6 +197,11 @@ export class World {
         //
         this.#targets.clear();  // keep track of targets chosen so weapons get different ones
 
+        // NOTE: This currently assigns targets in the order guns are defined
+        //       Sometimes this gives a target to a gun that's further away
+        // TODO: Maybe we should find best target, give to closest gun, then move to next best target?
+        //        - Instead of going through guns in order and giving each the best target available
+
         player.weapons.forEach( weapon => {
           weapon.delay ??= 0;
           if ( weapon.delay > 0 ) {
@@ -227,17 +246,28 @@ export class World {
 
               const dir = [ Math.cos( weapon.angle ), Math.sin( weapon.angle ) ];
               const pos = vec2.scaleAndAdd( [], player.pos, dir, PlayerWeaponDistance + weaponInfo.barrelLength );
-              const vel = vec2.scale( [], dir, bulletInfo.speed );
 
-              this.entities.push( {
-                type: weaponInfo.bulletType,
-                group: 'bullets',
-                pos: pos,
-                vel: vel,
-                angle: weapon.angle,
-                radius: 0.1,
-                life: 1
-              } );
+              const bulletCount = weaponInfo.bulletCount ?? 1;
+              const bulletSpread = weaponInfo.bulletSpread ?? 0;
+
+              for ( let i = 0; i < bulletCount; i ++ ) {
+
+                const bulletAngleOffset = bulletCount > 1 ? bulletSpread * ( -0.5 + i / ( bulletCount - 1 ) ) : 0;
+                const bulletAngle = weapon.angle + bulletAngleOffset;
+
+                const bulletDir = [ Math.cos( bulletAngle ), Math.sin( bulletAngle ) ];
+                const vel = vec2.scale( [], bulletDir, bulletInfo.speed );
+
+                this.entities.push( {
+                  type: weaponInfo.bulletType,
+                  group: 'bullets',
+                  pos: structuredClone( pos ),    // don't re-use pos, or bullets will all be in same spot!
+                  vel: vel,
+                  angle: bulletAngle,
+                  radius: 0.1,
+                  life: 1
+                } );
+              }
 
               weapon.delay += weaponInfo.delay;
             }
